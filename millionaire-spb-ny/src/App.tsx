@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import type { AnswerKey, MillionaireQuestion } from './types'
 import questionsJson from './data/questions.json'
@@ -6,6 +6,7 @@ import losevMoose from './assets/losev-moose.svg'
 import snowman from './assets/snowman.svg'
 
 type GameState = 'intro' | 'playing' | 'finished'
+type Theme = 'dark' | 'light'
 
 function normalizeQuestions(input: unknown): MillionaireQuestion[] {
   if (!Array.isArray(input)) return []
@@ -25,6 +26,11 @@ function App() {
   const questions = useMemo(() => normalizeQuestions(questionsJson), [])
   const total = Math.min(15, questions.length)
 
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = window.localStorage.getItem('theme')
+    return saved === 'light' || saved === 'dark' ? saved : 'dark'
+  })
+
   const [gameState, setGameState] = useState<GameState>('intro')
   const [idx, setIdx] = useState(0)
   const [selected, setSelected] = useState<AnswerKey | null>(null)
@@ -40,6 +46,13 @@ function App() {
   const visibleKeys = keyOrder().filter((k) => !hiddenNow.includes(k))
   const nextPurchaseCost = purchasesCount + 1
   const already5050ThisQuestion = Boolean(current?.id && hiddenByQuestionId[current.id]?.length)
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    window.localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   const start = () => {
     setGameState('playing')
@@ -166,8 +179,15 @@ function App() {
               <span className="bulb b6" />
               <span className="bulb b7" />
             </div>
-            <h1 className="title">Кто хочет стать миллионером</h1>
-            <p className="subtitle">Новогодний выпуск про Санкт-Петербург</p>
+            <div className="headerRow">
+              <div>
+                <h1 className="title">Кто хочет стать миллионером</h1>
+                <p className="subtitle">Новогодний выпуск про Санкт-Петербург</p>
+              </div>
+              <button className="themeToggle" onClick={toggleTheme} title="Переключить тему">
+                {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+              </button>
+            </div>
           </div>
 
           {questions.length === 0 ? (

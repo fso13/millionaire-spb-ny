@@ -3,16 +3,43 @@
     'Apple Color Emoji', 'Segoe UI Emoji';
   line-height: 1.4;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.92);
-  background:
+  /* theme tokens */
+  --bg:
     radial-gradient(1200px 700px at 12% 10%, rgba(30, 70, 160, 0.65) 0%, transparent 62%),
     radial-gradient(900px 600px at 88% 20%, rgba(212, 59, 85, 0.35) 0%, transparent 60%),
     radial-gradient(700px 500px at 55% 85%, rgba(255, 215, 125, 0.20) 0%, transparent 55%),
     linear-gradient(180deg, #070714 0%, #05050f 100%);
+  --text: rgba(255, 255, 255, 0.92);
+  --textMuted: rgba(255, 255, 255, 0.72);
+  --panelBg: rgba(11, 12, 26, 0.68);
+  --panelBorder: rgba(255, 255, 255, 0.12);
+  --surfaceBg: rgba(255, 255, 255, 0.04);
+  --surfaceBorder: rgba(255, 255, 255, 0.12);
+  --accentGold: rgba(255, 215, 125, 0.95);
+  --accentBlue: rgba(93, 170, 255, 0.95);
+  --accentGreen: rgba(94, 242, 160, 0.95);
+  --accentRed: rgba(255, 92, 92, 0.92);
+
+  color: var(--text);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='light'] {
+  --bg:
+    radial-gradient(1100px 700px at 10% 10%, rgba(93, 170, 255, 0.40) 0%, transparent 62%),
+    radial-gradient(900px 600px at 90% 18%, rgba(255, 92, 92, 0.22) 0%, transparent 60%),
+    radial-gradient(700px 520px at 55% 85%, rgba(255, 215, 125, 0.35) 0%, transparent 58%),
+    linear-gradient(180deg, #f7fbff 0%, #eff5ff 100%);
+  --text: rgba(12, 18, 32, 0.92);
+  --textMuted: rgba(12, 18, 32, 0.68);
+  --panelBg: rgba(255, 255, 255, 0.78);
+  --panelBorder: rgba(12, 18, 32, 0.10);
+  --surfaceBg: rgba(12, 18, 32, 0.04);
+  --surfaceBorder: rgba(12, 18, 32, 0.10);
 }
 
 * {
@@ -38,6 +65,13 @@ body::after {
   mix-blend-mode: screen;
 }
 
+[data-theme='light'] body::before,
+[data-theme='light'] body::after {
+  mix-blend-mode: normal;
+  opacity: 0.55;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.35));
+}
+
 body::before {
   background-image:
     radial-gradient(circle at 10px 20px, rgba(255, 255, 255, 0.75) 2px, transparent 3px),
@@ -46,6 +80,14 @@ body::before {
     radial-gradient(circle at 220px 160px, rgba(255, 255, 255, 0.5) 1.2px, transparent 3px);
   background-size: 260px 220px;
   animation: snowFall 18s linear infinite;
+}
+
+[data-theme='light'] body::before {
+  background-image:
+    radial-gradient(circle at 10px 20px, rgba(80, 120, 190, 0.35) 2px, transparent 3px),
+    radial-gradient(circle at 80px 120px, rgba(60, 90, 150, 0.28) 1.5px, transparent 3px),
+    radial-gradient(circle at 140px 60px, rgba(90, 130, 200, 0.30) 1.8px, transparent 3px),
+    radial-gradient(circle at 220px 160px, rgba(50, 80, 140, 0.22) 1.2px, transparent 3px);
 }
 
 body::after {
@@ -57,6 +99,14 @@ body::after {
   animation: snowFall 26s linear infinite;
   opacity: 0.25;
   filter: blur(0.2px);
+}
+
+[data-theme='light'] body::after {
+  background-image:
+    radial-gradient(circle at 30px 40px, rgba(60, 90, 150, 0.26) 1.6px, transparent 3px),
+    radial-gradient(circle at 110px 140px, rgba(40, 70, 130, 0.20) 1.1px, transparent 3px),
+    radial-gradient(circle at 180px 90px, rgba(80, 120, 190, 0.22) 1.3px, transparent 3px);
+  opacity: 0.45;
 }
 
 @keyframes snowFall {
