@@ -251,7 +251,12 @@ function App() {
                 </span>
               </div>
 
-              <div className="question">{current.question}</div>
+              <div className="question">
+                {current.question}
+                <div className="muted" style={{ marginTop: 8, fontSize: 13 }}>
+                  Автор: <b>{current.author.name}</b>, г. {current.author.city}
+                </div>
+              </div>
 
               <div className="answers">
                 {visibleKeys.map((k) => (
