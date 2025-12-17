@@ -795,6 +795,16 @@ function App() {
                         onClick={() => choose(k)}
                         disabled={reveal || confirmed}
                       >
+                        {reveal && k === current.correct && (
+                          <>
+                            <span className="spark spark1" />
+                            <span className="spark spark2" />
+                            <span className="spark spark3" />
+                            <span className="spark spark4" />
+                            <span className="spark spark5" />
+                            <span className="spark spark6" />
+                          </>
+                        )}
                         <span className="key">{k}</span>
                         {current.options[k]}
                       </button>
