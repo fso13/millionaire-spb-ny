@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280" fill="none">
+  <defs>
+    <linearGradient id="g" x1="60" y1="40" x2="220" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#cfe7ff" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="20" y1="20" x2="260" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2b2d63"/>
+      <stop offset="1" stop-color="#0b0b16"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="10" y="10" width="260" height="260" rx="64" fill="url(#bg)"/>
+
+  <!-- Body -->
+  <circle cx="140" cy="178" r="70" fill="url(#g)"/>
+  <circle cx="140" cy="104" r="48" fill="url(#g)"/>
+
+  <!-- Eyes -->
+  <circle cx="124" cy="92" r="6" fill="#0b0b16" opacity="0.85"/>
+  <circle cx="156" cy="92" r="6" fill="#0b0b16" opacity="0.85"/>
+  <circle cx="121" cy="89" r="2.2" fill="#ffffff" opacity="0.9"/>
+  <circle cx="153" cy="89" r="2.2" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Nose (carrot) -->
+  <path d="M140 104l54 12-54 14z" fill="#ff8a3d"/>
+  <path d="M140 104l54 12-54 14" stroke="#ffb07a" stroke-width="6" stroke-linejoin="round" opacity="0.6"/>
+
+  <!-- Sad mouth -->
+  <path d="M120 124c10-10 30-10 40 0" stroke="#0b0b16" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- Buttons -->
+  <circle cx="140" cy="162" r="7" fill="#0b0b16" opacity="0.55"/>
+  <circle cx="140" cy="184" r="7" fill="#0b0b16" opacity="0.55"/>
+  <circle cx="140" cy="206" r="7" fill="#0b0b16" opacity="0.55"/>
+
+  <!-- Arms -->
+  <path d="M82 170c-22 8-34 22-44 40" stroke="#8a5c3b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M198 170c22 8 34 22 44 40" stroke="#8a5c3b" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Hat -->
+  <path d="M112 64h56l-8-20h-40z" fill="#0b0b16" opacity="0.92"/>
+  <rect x="104" y="64" width="72" height="14" rx="7" fill="#0b0b16" opacity="0.92"/>
+  <rect x="104" y="70" width="72" height="6" rx="3" fill="#d43b55" opacity="0.95"/>
+
+  <!-- Snow -->
+  <circle cx="56" cy="58" r="5" fill="#ffffff" opacity="0.8"/>
+  <circle cx="86" cy="42" r="3" fill="#ffffff" opacity="0.7"/>
+  <circle cx="216" cy="64" r="4" fill="#ffffff" opacity="0.7"/>
+  <circle cx="236" cy="44" r="3" fill="#ffffff" opacity="0.65"/>
+</svg>
+
+

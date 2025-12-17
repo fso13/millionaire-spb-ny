@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="40" y1="20" x2="216" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2b2d63"/>
+      <stop offset="1" stop-color="#0b0b16"/>
+    </linearGradient>
+    <linearGradient id="fur" x1="74" y1="88" x2="182" y2="210" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#caa07a"/>
+      <stop offset="1" stop-color="#8a5c3b"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="8" y="8" width="240" height="240" rx="64" fill="url(#bg)" />
+
+  <!-- Antlers -->
+  <path d="M64 78c-18 0-30-12-30-28 12 10 26 6 38-2-4 12 0 22 12 28-8 4-14 2-20 2z" fill="#c8b48a" opacity="0.9"/>
+  <path d="M192 78c18 0 30-12 30-28-12 10-26 6-38-2 4 12 0 22-12 28 8 4 14 2 20 2z" fill="#c8b48a" opacity="0.9"/>
+  <path d="M54 54c-10 2-18-2-26-10 2 14 12 24 26 26" stroke="#f4e6c2" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+  <path d="M202 54c10 2 18-2 26-10-2 14-12 24-26 26" stroke="#f4e6c2" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Head -->
+  <path d="M128 70c-36 0-66 28-66 70 0 58 40 88 66 88s66-30 66-88c0-42-30-70-66-70z" fill="url(#fur)" />
+  <path d="M88 110c8-14 22-22 40-22s32 8 40 22" stroke="#f0d7b8" stroke-width="10" stroke-linecap="round" opacity="0.45"/>
+
+  <!-- Snout -->
+  <path d="M88 160c0-22 18-38 40-38s40 16 40 38c0 26-20 44-40 44s-40-18-40-44z" fill="#f1d4bb" opacity="0.95"/>
+  <path d="M114 168c0-6 6-10 14-10s14 4 14 10" stroke="#6b3f2a" stroke-width="8" stroke-linecap="round" opacity="0.55"/>
+  <circle cx="112" cy="156" r="7" fill="#6b3f2a" opacity="0.65"/>
+  <circle cx="144" cy="156" r="7" fill="#6b3f2a" opacity="0.65"/>
+
+  <!-- Eyes -->
+  <circle cx="102" cy="136" r="10" fill="#0b0b16" opacity="0.85"/>
+  <circle cx="154" cy="136" r="10" fill="#0b0b16" opacity="0.85"/>
+  <circle cx="98" cy="132" r="3" fill="#ffffff" opacity="0.9"/>
+  <circle cx="150" cy="132" r="3" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Hat -->
+  <path d="M76 104c10-22 30-36 52-36s42 14 52 36c-16-8-36-12-52-12s-36 4-52 12z" fill="#d43b55"/>
+  <path d="M78 104c14-10 32-16 50-16s36 6 50 16" stroke="#ffd2da" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+  <circle cx="170" cy="84" r="10" fill="#ffffff" opacity="0.95"/>
+</svg>
+
+

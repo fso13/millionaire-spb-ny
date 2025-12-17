@@ -1,0 +1,78 @@
+:root {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  line-height: 1.4;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.92);
+  background:
+    radial-gradient(1200px 700px at 12% 10%, rgba(30, 70, 160, 0.65) 0%, transparent 62%),
+    radial-gradient(900px 600px at 88% 20%, rgba(212, 59, 85, 0.35) 0%, transparent 60%),
+    radial-gradient(700px 500px at 55% 85%, rgba(255, 215, 125, 0.20) 0%, transparent 55%),
+    linear-gradient(180deg, #070714 0%, #05050f 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Subtle falling snow background */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: -20vh 0 0 0;
+  pointer-events: none;
+  z-index: 0;
+  background-repeat: repeat;
+  opacity: 0.35;
+  mix-blend-mode: screen;
+}
+
+body::before {
+  background-image:
+    radial-gradient(circle at 10px 20px, rgba(255, 255, 255, 0.75) 2px, transparent 3px),
+    radial-gradient(circle at 80px 120px, rgba(255, 255, 255, 0.55) 1.5px, transparent 3px),
+    radial-gradient(circle at 140px 60px, rgba(255, 255, 255, 0.65) 1.8px, transparent 3px),
+    radial-gradient(circle at 220px 160px, rgba(255, 255, 255, 0.5) 1.2px, transparent 3px);
+  background-size: 260px 220px;
+  animation: snowFall 18s linear infinite;
+}
+
+body::after {
+  background-image:
+    radial-gradient(circle at 30px 40px, rgba(255, 255, 255, 0.55) 1.6px, transparent 3px),
+    radial-gradient(circle at 110px 140px, rgba(255, 255, 255, 0.45) 1.1px, transparent 3px),
+    radial-gradient(circle at 180px 90px, rgba(255, 255, 255, 0.5) 1.3px, transparent 3px);
+  background-size: 240px 200px;
+  animation: snowFall 26s linear infinite;
+  opacity: 0.25;
+  filter: blur(0.2px);
+}
+
+@keyframes snowFall {
+  0% {
+    transform: translateY(-10vh);
+  }
+  100% {
+    transform: translateY(120vh);
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
