@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
-import type { AnswerKey, MillionaireQuestion } from './types'
+import type { AnswerKey, Difficulty, MillionaireQuestion } from './types'
 import questionsJson from './data/questions.json'
 import losevMoose from './assets/losev-moose.svg'
 import snowman from './assets/snowman.svg'
@@ -8,9 +8,37 @@ import snowman from './assets/snowman.svg'
 type GameState = 'intro' | 'playing' | 'finished'
 type Theme = 'dark' | 'light'
 
+const LS_THEME_KEY = 'theme'
+const LS_DIFFICULTY_KEY = 'millionaire:difficulty'
+const LS_EARNED_TOTAL_KEY = 'millionaire:earnedPoints'
+
 function normalizeQuestions(input: unknown): MillionaireQuestion[] {
   if (!Array.isArray(input)) return []
   return input.filter(Boolean) as MillionaireQuestion[]
+}
+
+function normalizeQuestionsByDifficulty(
+  input: unknown
+): Record<Difficulty, MillionaireQuestion[]> {
+  const empty: Record<Difficulty, MillionaireQuestion[]> = {
+    easy: [],
+    medium: [],
+    hard: []
+  }
+
+  // Backward compatibility: old format was just an array
+  if (Array.isArray(input)) {
+    empty.easy = normalizeQuestions(input)
+    return empty
+  }
+
+  if (typeof input !== 'object' || input === null) return empty
+  const obj = input as Record<string, unknown>
+  return {
+    easy: normalizeQuestions(obj.easy),
+    medium: normalizeQuestions(obj.medium),
+    hard: normalizeQuestions(obj.hard)
+  }
 }
 
 function keyOrder(): AnswerKey[] {
@@ -23,18 +51,32 @@ function pickOne<T>(arr: T[]): T | null {
 }
 
 function App() {
-  const questions = useMemo(() => normalizeQuestions(questionsJson), [])
-  const total = Math.min(15, questions.length)
-
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = window.localStorage.getItem('theme')
+    const saved = window.localStorage.getItem(LS_THEME_KEY)
     return saved === 'light' || saved === 'dark' ? saved : 'dark'
   })
+
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => {
+    const saved = window.localStorage.getItem(LS_DIFFICULTY_KEY)
+    return saved === 'easy' || saved === 'medium' || saved === 'hard' ? saved : 'easy'
+  })
+
+  const [earnedTotal, setEarnedTotal] = useState(() => {
+    const raw = window.localStorage.getItem(LS_EARNED_TOTAL_KEY)
+    const parsed = raw ? Number(raw) : 0
+    return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0
+  })
+
+  const questionSets = useMemo(() => normalizeQuestionsByDifficulty(questionsJson), [])
+  const questions = questionSets[difficulty]
+  const total = Math.min(15, questions.length)
 
   const [gameState, setGameState] = useState<GameState>('intro')
   const [idx, setIdx] = useState(0)
   const [selected, setSelected] = useState<AnswerKey | null>(null)
+  const [confirmed, setConfirmed] = useState(false)
   const [reveal, setReveal] = useState(false)
+  const [showCorrectMessage, setShowCorrectMessage] = useState(false)
   const [result, setResult] = useState<'win' | 'lose' | null>(null)
   const [points, setPoints] = useState(0)
   const [purchasesCount, setPurchasesCount] = useState(0)
@@ -49,8 +91,16 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
-    window.localStorage.setItem('theme', theme)
+    window.localStorage.setItem(LS_THEME_KEY, theme)
   }, [theme])
+
+  useEffect(() => {
+    window.localStorage.setItem(LS_DIFFICULTY_KEY, difficulty)
+  }, [difficulty])
+
+  useEffect(() => {
+    window.localStorage.setItem(LS_EARNED_TOTAL_KEY, String(earnedTotal))
+  }, [earnedTotal])
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
@@ -58,7 +108,9 @@ function App() {
     setGameState('playing')
     setIdx(0)
     setSelected(null)
+    setConfirmed(false)
     setReveal(false)
+    setShowCorrectMessage(false)
     setResult(null)
     setPoints(0)
     setPurchasesCount(0)
@@ -70,7 +122,9 @@ function App() {
     setGameState('intro')
     setIdx(0)
     setSelected(null)
+    setConfirmed(false)
     setReveal(false)
+    setShowCorrectMessage(false)
     setResult(null)
     setPoints(0)
     setPurchasesCount(0)
@@ -80,36 +134,50 @@ function App() {
 
   const choose = (k: AnswerKey) => {
     if (gameState !== 'playing') return
-    if (reveal) return
+    if (reveal || confirmed) return
     setSelected(k)
+  }
+
+  const confirmAnswer = () => {
+    if (gameState !== 'playing') return
+    if (!selected || confirmed) return
+    setConfirmed(true)
     setReveal(true)
 
     window.setTimeout(() => {
-      const isCorrect = k === current.correct
+      const isCorrect = selected === current.correct
       if (!isCorrect) {
         setResult('lose')
         setGameState('finished')
         return
       }
 
-      setPoints((p) => p + (idx + 1))
+      // Правильный ответ - показываем сообщение
+      setShowCorrectMessage(true)
+      const gained = idx + 1
+      setPoints((p) => p + gained)
+      setEarnedTotal((t) => t + gained)
 
-      const nextIdx = idx + 1
-      if (nextIdx >= total) {
-        setResult('win')
-        setGameState('finished')
-        return
-      }
+      window.setTimeout(() => {
+        const nextIdx = idx + 1
+        if (nextIdx >= total) {
+          setResult('win')
+          setGameState('finished')
+          return
+        }
 
-      setIdx(nextIdx)
-      setSelected(null)
-      setReveal(false)
+        setIdx(nextIdx)
+        setSelected(null)
+        setConfirmed(false)
+        setReveal(false)
+        setShowCorrectMessage(false)
+      }, 2000) // Показываем сообщение 2 секунды
     }, 900)
   }
 
   const buy5050 = () => {
     if (gameState !== 'playing') return
-    if (reveal) return
+    if (reveal || confirmed) return
     if (points < nextPurchaseCost) return
     const q = current
     if (!q) return
@@ -161,8 +229,18 @@ function App() {
   const answerClass = (k: AnswerKey) => {
     if (!reveal) return selected === k ? 'answerBtn selected' : 'answerBtn'
     if (k === current.correct) return 'answerBtn correct'
-    if (selected === k) return 'answerBtn wrong'
+    if (selected === k && !showCorrectMessage) return 'answerBtn wrong'
     return 'answerBtn'
+  }
+
+  const difficultyLabel: Record<Difficulty, string> = {
+    easy: 'Лёгкий',
+    medium: 'Средний',
+    hard: 'Сложный'
+  }
+
+  const resetEarned = () => {
+    setEarnedTotal(0)
   }
 
   return (
@@ -206,10 +284,39 @@ function App() {
                   подсвечивается. За каждый пройденный вопрос начисляются очки: за вопрос №k
                   получаешь k очков. Очки можно тратить на подсказки.
                 </div>
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontWeight: 700, marginBottom: 6 }}>Сложность</div>
+                  <div className="muted" style={{ marginBottom: 10 }}>
+                    Выберите набор вопросов перед стартом.
+                  </div>
+                  <div className="lifelines" style={{ gap: 10 }}>
+                    {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
+                      <button
+                        key={d}
+                        className={difficulty === d ? 'lifelineBtn selected' : 'lifelineBtn'}
+                        onClick={() => setDifficulty(d)}
+                        title={`Выбрать сложность: ${difficultyLabel[d]}`}
+                      >
+                        {difficultyLabel[d]}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="muted" style={{ marginTop: 10 }}>
+                    Заработано всего: <b>{earnedTotal}</b> очк.
+                    <button
+                      className="themeToggle"
+                      style={{ marginLeft: 10 }}
+                      onClick={resetEarned}
+                      title="Сбросить сохранённые заработанные очки"
+                    >
+                      Сбросить
+                    </button>
+                  </div>
+                </div>
               </div>
               <div className="footerRow">
                 <span className="muted">
-                  Вопросов: {total} / {questions.length}
+                  Сложность: <b>{difficultyLabel[difficulty]}</b> · Вопросов: {total} / {questions.length}
                 </span>
                 <button className="primaryBtn" onClick={start}>
                   Начать игру
@@ -225,6 +332,9 @@ function App() {
                 <span className="badge">
                   Очки: <b>{points}</b>
                 </span>
+                <span className="badge">
+                  Заработано всего: <b>{earnedTotal}</b>
+                </span>
               </div>
 
               <div className="lifelinesRow">
@@ -232,7 +342,7 @@ function App() {
                   <button
                     className="lifelineBtn"
                     onClick={buy5050}
-                    disabled={reveal || points < nextPurchaseCost || already5050ThisQuestion}
+                    disabled={reveal || confirmed || points < nextPurchaseCost || already5050ThisQuestion}
                     title="Убрать два неправильных варианта"
                   >
                     50/50 · {nextPurchaseCost} очк.
@@ -258,24 +368,53 @@ function App() {
                 </div>
               </div>
 
-              <div className="answers">
-                {visibleKeys.map((k) => (
-                  <button
-                    key={k}
-                    className={answerClass(k)}
-                    onClick={() => choose(k)}
-                    disabled={reveal}
-                  >
-                    <span className="key">{k}</span>
-                    {current.options[k]}
-                  </button>
-                ))}
-              </div>
+              {showCorrectMessage ? (
+                <div className="finishBox" style={{ marginTop: 20, marginBottom: 20 }}>
+                  <div style={{ fontWeight: 700, fontSize: 24, color: 'var(--color-success, #4caf50)' }}>
+                    ✓ Ответ верный!
+                  </div>
+                  <div className="muted" style={{ marginTop: 8 }}>
+                    +{idx + 1} очк.
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="answers">
+                    {visibleKeys.map((k) => (
+                      <button
+                        key={k}
+                        className={answerClass(k)}
+                        onClick={() => choose(k)}
+                        disabled={reveal || confirmed}
+                      >
+                        <span className="key">{k}</span>
+                        {current.options[k]}
+                      </button>
+                    ))}
+                  </div>
 
-              <div className="footerRow">
-                <span className="muted">{reveal ? 'Проверяем ответ…' : 'Выберите вариант'}</span>
-                <span className="muted">За правильный ответ: +{idx + 1} очк.</span>
-              </div>
+                  <div className="footerRow">
+                    {selected && !confirmed ? (
+                      <>
+                        <span className="muted">Выбран вариант <b>{selected}</b></span>
+                        <button className="primaryBtn" onClick={confirmAnswer}>
+                          Подтвердить ответ
+                        </button>
+                      </>
+                    ) : reveal ? (
+                      <>
+                        <span className="muted">{showCorrectMessage ? 'Переход к следующему вопросу…' : 'Проверяем ответ…'}</span>
+                        <span className="muted">За правильный ответ: +{idx + 1} очк.</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="muted">Выберите вариант</span>
+                        <span className="muted">За правильный ответ: +{idx + 1} очк.</span>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <div className="finishBox">

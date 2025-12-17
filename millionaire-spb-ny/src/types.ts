@@ -1,5 +1,7 @@
 export type AnswerKey = 'A' | 'B' | 'C' | 'D'
 
+export type Difficulty = 'easy' | 'medium' | 'hard'
+
 export type MillionaireQuestion = {
   id: string
   question: string
