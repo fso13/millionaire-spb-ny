@@ -5,6 +5,26 @@
   padding: 24px;
   position: relative;
   z-index: 1; /* above snow */
+  overflow-x: hidden;
+}
+
+.app::before,
+.app::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 180px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app::before {
+  left: 0;
+}
+
+.app::after {
+  right: 0;
 }
 
 .shell {
@@ -12,6 +32,8 @@
   display: grid;
   grid-template-columns: 1.6fr 0.9fr;
   gap: 18px;
+  position: relative;
+  z-index: 1;
 }
 
 .panel {
@@ -124,21 +146,58 @@
   border-radius: 999px;
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.22));
+  filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 16px currentColor);
   animation: twinkle 1.8s ease-in-out infinite;
+  box-shadow: 0 0 12px currentColor, inset 0 0 4px rgba(255, 255, 255, 0.6);
 }
 
-.b1 { background: rgba(255, 215, 125, 0.95); animation-delay: 0s; }
-.b2 { background: rgba(93, 170, 255, 0.95); animation-delay: 0.25s; }
-.b3 { background: rgba(94, 242, 160, 0.95); animation-delay: 0.5s; }
-.b4 { background: rgba(255, 92, 92, 0.92); animation-delay: 0.75s; }
-.b5 { background: rgba(255, 215, 125, 0.95); animation-delay: 1s; }
-.b6 { background: rgba(93, 170, 255, 0.95); animation-delay: 1.25s; }
-.b7 { background: rgba(94, 242, 160, 0.95); animation-delay: 1.45s; }
+.b1 { 
+  background: rgba(255, 215, 125, 1); 
+  color: rgba(255, 215, 125, 1);
+  animation-delay: 0s; 
+}
+.b2 { 
+  background: rgba(93, 170, 255, 1); 
+  color: rgba(93, 170, 255, 1);
+  animation-delay: 0.25s; 
+}
+.b3 { 
+  background: rgba(94, 242, 160, 1); 
+  color: rgba(94, 242, 160, 1);
+  animation-delay: 0.5s; 
+}
+.b4 { 
+  background: rgba(255, 92, 92, 1); 
+  color: rgba(255, 92, 92, 1);
+  animation-delay: 0.75s; 
+}
+.b5 { 
+  background: rgba(255, 215, 125, 1); 
+  color: rgba(255, 215, 125, 1);
+  animation-delay: 1s; 
+}
+.b6 { 
+  background: rgba(93, 170, 255, 1); 
+  color: rgba(93, 170, 255, 1);
+  animation-delay: 1.25s; 
+}
+.b7 { 
+  background: rgba(94, 242, 160, 1); 
+  color: rgba(94, 242, 160, 1);
+  animation-delay: 1.45s; 
+}
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.55; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-1px); }
+  0%, 100% { 
+    opacity: 0.85; 
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 16px currentColor);
+  }
+  50% { 
+    opacity: 1; 
+    transform: translateY(-1px) scale(1.1);
+    filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 24px currentColor);
+  }
 }
 
 .metaRow {
@@ -553,6 +612,292 @@
   justify-content: flex-end;
 }
 
+/* Декоративные ёлки с гирляндами */
+.treeLeft,
+.treeRight {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 180px;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 5%;
+}
+
+/* Выравнивание всех элементов по центру */
+.treeLeft > *,
+.treeRight > * {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.treeLeft {
+  left: 0;
+}
+
+.treeRight {
+  right: 0;
+}
+
+/* Ёлка - шесть ярусов треугольников */
+.treeLayer {
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  filter: drop-shadow(0 4px 12px rgba(0, 100, 0, 0.4));
+  margin-left: 0;
+}
+
+.treeLayer1 {
+  border-left: 75px solid transparent;
+  border-right: 75px solid transparent;
+  border-bottom: 90px solid rgba(34, 139, 34, 0.7);
+  bottom: 5%;
+  z-index: 1;
+}
+
+.treeLayer2 {
+  border-left: 65px solid transparent;
+  border-right: 65px solid transparent;
+  border-bottom: 80px solid rgba(34, 139, 34, 0.72);
+  bottom: 15%;
+  z-index: 2;
+}
+
+.treeLayer3 {
+  border-left: 55px solid transparent;
+  border-right: 55px solid transparent;
+  border-bottom: 70px solid rgba(34, 139, 34, 0.74);
+  bottom: 24%;
+  z-index: 3;
+}
+
+.treeLayer4 {
+  border-left: 45px solid transparent;
+  border-right: 45px solid transparent;
+  border-bottom: 60px solid rgba(34, 139, 34, 0.76);
+  bottom: 32%;
+  z-index: 4;
+}
+
+.treeLayer5 {
+  border-left: 35px solid transparent;
+  border-right: 35px solid transparent;
+  border-bottom: 50px solid rgba(34, 139, 34, 0.78);
+  bottom: 39%;
+  z-index: 5;
+}
+
+.treeLayer6 {
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 40px solid rgba(34, 139, 34, 0.8);
+  bottom: 45%;
+  z-index: 6;
+}
+
+
+/* Красная звезда на вершине */
+.treeStar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 48%;
+  width: 40px;
+  height: 40px;
+  z-index: 10;
+  background: rgba(220, 20, 60, 0.95);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  filter: drop-shadow(0 0 8px rgba(220, 20, 60, 0.6)) drop-shadow(0 4px 12px rgba(220, 20, 60, 0.4));
+  animation: starTwinkle 2s ease-in-out infinite;
+  margin-left: 0;
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.9;
+    transform: translateX(-50%) scale(1);
+    filter: drop-shadow(0 0 8px rgba(220, 20, 60, 0.6)) drop-shadow(0 4px 12px rgba(220, 20, 60, 0.4));
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(220, 20, 60, 0.8)) drop-shadow(0 6px 16px rgba(220, 20, 60, 0.6));
+  }
+}
+
+/* Мишура на ёлке */
+.treeTinsel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 5%;
+  height: calc(45% - 5% + 40px);
+  width: 150px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 215, 125, 0.7) 1.5%,
+    transparent 3%,
+    rgba(93, 170, 255, 0.7) 4.5%,
+    transparent 6%,
+    rgba(94, 242, 160, 0.7) 7.5%,
+    transparent 9%,
+    rgba(255, 92, 92, 0.7) 10.5%,
+    transparent 12%
+  );
+  z-index: 7;
+  pointer-events: none;
+  clip-path: polygon(
+    /* Верхние ярусы */
+    50% 0%,
+    45% 8%,
+    50% 16%,
+    45% 24%,
+    50% 32%,
+    45% 40%,
+    /* Средние ярусы */
+    50% 48%,
+    45% 56%,
+    50% 64%,
+    45% 72%,
+    /* Нижние ярусы */
+    50% 80%,
+    45% 88%,
+    50% 96%,
+    55% 96%,
+    50% 88%,
+    55% 80%,
+    50% 72%,
+    55% 64%,
+    50% 56%,
+    55% 48%,
+    50% 40%,
+    55% 32%,
+    50% 24%,
+    55% 16%,
+    50% 8%,
+    55% 0%,
+    50% 0%
+  );
+  animation: tinselShine 3s ease-in-out infinite;
+  margin-left: 0;
+}
+
+.treeRight .treeTinsel {
+  animation: tinselShine 3.5s ease-in-out infinite;
+}
+
+@keyframes tinselShine {
+  0%, 100% {
+    opacity: 0.7;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+}
+
+.treeGarland {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 5%;
+  height: calc(45% - 5% + 40px);
+  width: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 8;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 215, 125, 0.6) 0%,
+    rgba(93, 170, 255, 0.6) 20%,
+    rgba(94, 242, 160, 0.6) 40%,
+    rgba(255, 92, 92, 0.6) 60%,
+    rgba(255, 215, 125, 0.6) 80%,
+    rgba(93, 170, 255, 0.6) 100%
+  );
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(255, 215, 125, 0.4);
+  margin-left: 0;
+}
+
+.treeBulb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: relative;
+  filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 12px currentColor);
+  animation: treeTwinkle 2s ease-in-out infinite;
+  box-shadow: 0 0 8px currentColor, inset 0 0 3px rgba(255, 255, 255, 0.7);
+}
+
+.tb1 { 
+  background: rgba(255, 215, 125, 1); 
+  color: rgba(255, 215, 125, 1);
+  animation-delay: 0s; 
+}
+.tb2 { 
+  background: rgba(93, 170, 255, 1); 
+  color: rgba(93, 170, 255, 1);
+  animation-delay: 0.4s; 
+}
+.tb3 { 
+  background: rgba(94, 242, 160, 1); 
+  color: rgba(94, 242, 160, 1);
+  animation-delay: 0.8s; 
+}
+.tb4 { 
+  background: rgba(255, 92, 92, 1); 
+  color: rgba(255, 92, 92, 1);
+  animation-delay: 1.2s; 
+}
+.tb5 { 
+  background: rgba(255, 215, 125, 1); 
+  color: rgba(255, 215, 125, 1);
+  animation-delay: 1.6s; 
+}
+.tb6 { 
+  background: rgba(93, 170, 255, 1); 
+  color: rgba(93, 170, 255, 1);
+  animation-delay: 2s; 
+}
+
+@keyframes treeTwinkle {
+  0%, 100% { 
+    opacity: 0.8; 
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 12px currentColor);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 20px currentColor);
+  }
+}
+
 @media (max-width: 640px) {
   .lifelinesRow {
     flex-direction: column;
@@ -561,5 +906,10 @@
 
   .callBody {
     grid-template-columns: 1fr;
+  }
+
+  .treeLeft,
+  .treeRight {
+    display: none;
   }
 }

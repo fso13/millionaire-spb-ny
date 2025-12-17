@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import type { AnswerKey, Difficulty, MillionaireQuestion } from './types'
 import questionsJson from './data/questions.json'
@@ -11,6 +11,8 @@ type Theme = 'dark' | 'light'
 const LS_THEME_KEY = 'theme'
 const LS_DIFFICULTY_KEY = 'millionaire:difficulty'
 const LS_EARNED_TOTAL_KEY = 'millionaire:earnedPoints'
+const LS_MUSIC_ENABLED_KEY = 'millionaire:musicEnabled'
+const LS_MUSIC_VOLUME_KEY = 'millionaire:musicVolume'
 
 function normalizeQuestions(input: unknown): MillionaireQuestion[] {
   if (!Array.isArray(input)) return []
@@ -50,6 +52,234 @@ function pickOne<T>(arr: T[]): T | null {
   return arr[Math.floor(Math.random() * arr.length)] ?? null
 }
 
+// Полифоническая новогодняя мелодия (Jingle Bells)
+function createHolidayMusic(audioContext: AudioContext, volume: number): { play: () => void; stop: () => void; setVolume: (v: number) => void } {
+  let isPlaying = false
+  let timeoutId: number | null = null
+  let currentVolume = volume
+
+  // Основная мелодия (верхний голос)
+  const melody = [
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 523.25, duration: 400 }, // C5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 523.25, duration: 400 }, // C5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 587.33, duration: 200 }, // D5
+    { freq: 392.00, duration: 200 }, // G4
+    { freq: 440.00, duration: 200 }, // A4
+    { freq: 523.25, duration: 600 }, // C5
+    { freq: 0, duration: 200 }, // пауза
+    { freq: 659.25, duration: 200 }, // E5
+    { freq: 659.25, duration: 200 }, // E5
+    { freq: 659.25, duration: 300 }, // E5
+    { freq: 659.25, duration: 200 }, // E5
+    { freq: 659.25, duration: 200 }, // E5
+    { freq: 659.25, duration: 300 }, // E5
+    { freq: 659.25, duration: 200 }, // E5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 523.25, duration: 200 }, // C5
+    { freq: 587.33, duration: 200 }, // D5
+    { freq: 587.33, duration: 200 }, // D5
+    { freq: 659.25, duration: 200 }, // E5
+    { freq: 523.25, duration: 400 }, // C5
+  ]
+
+  // Аккомпанемент (средний голос - аккорды)
+  const harmony = [
+    { freqs: [261.63, 329.63], duration: 200 }, // C3, E3
+    { freqs: [261.63, 329.63], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 400 },
+    { freqs: [261.63, 329.63], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 400 },
+    { freqs: [293.66, 349.23], duration: 200 }, // D3, F3
+    { freqs: [293.66, 349.23], duration: 200 },
+    { freqs: [196.00, 246.94], duration: 200 }, // G2, B2
+    { freqs: [220.00, 277.18], duration: 200 }, // A2, C#3
+    { freqs: [261.63, 329.63], duration: 600 },
+    { freqs: [], duration: 200 }, // пауза
+    { freqs: [329.63, 392.00], duration: 200 }, // E3, G3
+    { freqs: [329.63, 392.00], duration: 200 },
+    { freqs: [329.63, 392.00], duration: 300 },
+    { freqs: [329.63, 392.00], duration: 200 },
+    { freqs: [329.63, 392.00], duration: 200 },
+    { freqs: [329.63, 392.00], duration: 300 },
+    { freqs: [329.63, 392.00], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 200 },
+    { freqs: [293.66, 349.23], duration: 200 },
+    { freqs: [293.66, 349.23], duration: 200 },
+    { freqs: [329.63, 392.00], duration: 200 },
+    { freqs: [261.63, 329.63], duration: 400 },
+  ]
+
+  // Басовый голос
+  const bass = [
+    { freq: 130.81, duration: 200 }, // C2
+    { freq: 130.81, duration: 200 },
+    { freq: 130.81, duration: 400 },
+    { freq: 130.81, duration: 200 },
+    { freq: 130.81, duration: 200 },
+    { freq: 130.81, duration: 400 },
+    { freq: 146.83, duration: 200 }, // D2
+    { freq: 146.83, duration: 200 },
+    { freq: 98.00, duration: 200 }, // G1
+    { freq: 110.00, duration: 200 }, // A1
+    { freq: 130.81, duration: 600 },
+    { freq: 0, duration: 200 },
+    { freq: 164.81, duration: 200 }, // E2
+    { freq: 164.81, duration: 200 },
+    { freq: 164.81, duration: 300 },
+    { freq: 164.81, duration: 200 },
+    { freq: 164.81, duration: 200 },
+    { freq: 164.81, duration: 300 },
+    { freq: 164.81, duration: 200 },
+    { freq: 130.81, duration: 200 },
+    { freq: 130.81, duration: 200 },
+    { freq: 130.81, duration: 200 },
+    { freq: 130.81, duration: 200 },
+    { freq: 146.83, duration: 200 },
+    { freq: 146.83, duration: 200 },
+    { freq: 164.81, duration: 200 },
+    { freq: 130.81, duration: 400 },
+  ]
+
+  const playNote = (freq: number, startTime: number, duration: number, volumeMultiplier: number = 1) => {
+    if (freq === 0) return
+    
+    const osc = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+    
+    osc.type = 'sine'
+    osc.frequency.value = freq
+    const baseGain = currentVolume * 0.03 * volumeMultiplier
+    gain.gain.setValueAtTime(baseGain, startTime)
+    gain.gain.exponentialRampToValueAtTime(baseGain * 0.1, startTime + duration / 1000)
+    
+    osc.connect(gain)
+    gain.connect(audioContext.destination)
+    
+    osc.start(startTime)
+    osc.stop(startTime + duration / 1000)
+  }
+
+  const playChord = (freqs: number[], startTime: number, duration: number) => {
+    freqs.forEach((freq) => {
+      playNote(freq, startTime, duration, 0.6)
+    })
+  }
+
+  const playLoop = () => {
+    if (!isPlaying) return
+    
+    const startTime = audioContext.currentTime
+    let currentTime = startTime
+    
+    melody.forEach((note, i) => {
+      // Основная мелодия
+      playNote(note.freq, currentTime, note.duration, 1.0)
+      
+      // Аккомпанемент
+      if (harmony[i]) {
+        playChord(harmony[i].freqs, currentTime, harmony[i].duration)
+      }
+      
+      // Бас
+      if (bass[i]) {
+        playNote(bass[i].freq, currentTime, bass[i].duration, 0.8)
+      }
+      
+      currentTime += note.duration / 1000
+    })
+    
+    // Повторяем через 4.5 секунды
+    timeoutId = window.setTimeout(() => {
+      if (isPlaying) {
+        playLoop()
+      }
+    }, 4500) as unknown as number
+  }
+
+  return {
+    play: () => {
+      if (isPlaying) return
+      isPlaying = true
+      playLoop()
+    },
+    stop: () => {
+      isPlaying = false
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+        timeoutId = null
+      }
+    },
+    setVolume: (v: number) => {
+      currentVolume = Math.max(0, Math.min(1, v))
+    }
+  }
+}
+
+// Озвучка текста через SpeechSynthesis
+function speakText(text: string, onEnd?: () => void) {
+  if (!('speechSynthesis' in window)) return
+  
+  // Останавливаем предыдущую озвучку, если она есть
+  window.speechSynthesis.cancel()
+  
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'ru-RU'
+  utterance.rate = 0.85
+  utterance.pitch = 0.7 // Низкий pitch для мужского голоса
+  utterance.volume = 0.9
+  
+  // Улучшенный поиск мужского голоса для Жоры
+  const voices = window.speechSynthesis.getVoices()
+  
+  // Приоритетный поиск мужского голоса
+  const maleVoice = 
+    // 1. Явно мужской голос
+    voices.find(v => v.lang.startsWith('ru') && (
+      v.name.toLowerCase().includes('male') || 
+      v.name.toLowerCase().includes('муж') ||
+      v.name.toLowerCase().includes('dmitri') ||
+      v.name.toLowerCase().includes('yuri')
+    )) ||
+    // 2. Исключаем женские голоса
+    voices.find(v => v.lang.startsWith('ru') && 
+      !v.name.toLowerCase().includes('female') && 
+      !v.name.toLowerCase().includes('жен') &&
+      !v.name.toLowerCase().includes('anna') &&
+      !v.name.toLowerCase().includes('katya') &&
+      !v.name.toLowerCase().includes('milena') &&
+      !v.name.toLowerCase().includes('elena')
+    ) ||
+    // 3. Любой русский голос
+    voices.find(v => v.lang.startsWith('ru'))
+  
+  if (maleVoice) {
+    utterance.voice = maleVoice
+  }
+  
+  if (onEnd) {
+    utterance.onend = onEnd
+  }
+  
+  window.speechSynthesis.speak(utterance)
+}
+
+function stopSpeaking() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+  }
+}
+
 function App() {
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = window.localStorage.getItem(LS_THEME_KEY)
@@ -66,6 +296,21 @@ function App() {
     const parsed = raw ? Number(raw) : 0
     return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0
   })
+
+  const [musicEnabled, setMusicEnabled] = useState(() => {
+    const saved = window.localStorage.getItem(LS_MUSIC_ENABLED_KEY)
+    return saved === 'true'
+  })
+
+  const [musicVolume, setMusicVolume] = useState(() => {
+    const saved = window.localStorage.getItem(LS_MUSIC_VOLUME_KEY)
+    const parsed = saved ? Number(saved) : 0.3 // По умолчанию 30% громкости
+    return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : 0.3
+  })
+
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const musicControllerRef = useRef<ReturnType<typeof createHolidayMusic> | null>(null)
+  const currentUtteranceRef = useRef<number>(0)
 
   const questionSets = useMemo(() => normalizeQuestionsByDifficulty(questionsJson), [])
   const questions = questionSets[difficulty]
@@ -101,6 +346,65 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem(LS_EARNED_TOTAL_KEY, String(earnedTotal))
   }, [earnedTotal])
+
+  useEffect(() => {
+    window.localStorage.setItem(LS_MUSIC_ENABLED_KEY, String(musicEnabled))
+  }, [musicEnabled])
+
+  useEffect(() => {
+    window.localStorage.setItem(LS_MUSIC_VOLUME_KEY, String(musicVolume))
+    if (musicControllerRef.current) {
+      musicControllerRef.current.setVolume(musicVolume)
+    }
+  }, [musicVolume])
+
+  // Инициализация аудио контекста и музыки
+  useEffect(() => {
+    if (!audioContextRef.current) {
+      try {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+        musicControllerRef.current = createHolidayMusic(audioContextRef.current, musicVolume)
+      } catch (e) {
+        console.warn('AudioContext not supported', e)
+      }
+    }
+
+    return () => {
+      if (musicControllerRef.current) {
+        musicControllerRef.current.stop()
+      }
+      stopSpeaking()
+    }
+  }, [])
+
+  // Управление фоновой музыкой
+  useEffect(() => {
+    if (!musicControllerRef.current) return
+
+    if (musicEnabled) {
+      // Разрешаем автовоспроизведение после первого взаимодействия пользователя
+      if (audioContextRef.current?.state === 'suspended') {
+        audioContextRef.current.resume()
+      }
+      musicControllerRef.current.play()
+    } else {
+      musicControllerRef.current.stop()
+    }
+  }, [musicEnabled])
+
+  // Загрузка голосов для синтеза речи
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      // Голоса могут загружаться асинхронно
+      const loadVoices = () => {
+        window.speechSynthesis.getVoices()
+      }
+      loadVoices()
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices
+      }
+    }
+  }, [])
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
@@ -200,7 +504,10 @@ function App() {
     setCallOpen(true)
   }
 
-  const closeCall = () => setCallOpen(false)
+  const closeCall = () => {
+    stopSpeaking()
+    setCallOpen(false)
+  }
 
   const callLines = useMemo(() => {
     if (!current) return []
@@ -226,6 +533,47 @@ function App() {
     ]
   }, [current])
 
+  // Озвучка диалога Лося
+  useEffect(() => {
+    if (!callOpen || !callLines.length) return
+
+    // Останавливаем предыдущую озвучку
+    stopSpeaking()
+    currentUtteranceRef.current += 1
+    const currentId = currentUtteranceRef.current
+
+    // Озвучиваем только реплики Жоры Лосева
+    let messageIndex = 0
+    const speakNextMessage = () => {
+      if (!callOpen || currentId !== currentUtteranceRef.current) return
+
+      // Находим следующую реплику Жоры
+      while (messageIndex < callLines.length) {
+        const message = callLines[messageIndex]
+        messageIndex++
+        if (message.who === 'Жора Лосев') {
+          speakText(
+            message.text,
+            messageIndex < callLines.length ? speakNextMessage : undefined
+          )
+          return
+        }
+      }
+    }
+
+    // Небольшая задержка перед началом озвучки
+    const timeoutId = window.setTimeout(() => {
+      speakNextMessage()
+    }, 500)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      if (currentId === currentUtteranceRef.current) {
+        stopSpeaking()
+      }
+    }
+  }, [callOpen, callLines])
+
   const answerClass = (k: AnswerKey) => {
     if (!reveal) return selected === k ? 'answerBtn selected' : 'answerBtn'
     if (k === current.correct) return 'answerBtn correct'
@@ -245,6 +593,43 @@ function App() {
 
   return (
     <div className="app">
+      {/* Декоративные ёлки с гирляндами */}
+      <div className="treeLeft" aria-hidden="true">
+        <div className="treeLayer treeLayer1" />
+        <div className="treeLayer treeLayer2" />
+        <div className="treeLayer treeLayer3" />
+        <div className="treeLayer treeLayer4" />
+        <div className="treeLayer treeLayer5" />
+        <div className="treeLayer treeLayer6" />
+        <div className="treeStar" />
+        <div className="treeTinsel" />
+        <div className="treeGarland">
+          <span className="treeBulb tb1" />
+          <span className="treeBulb tb2" />
+          <span className="treeBulb tb3" />
+          <span className="treeBulb tb4" />
+          <span className="treeBulb tb5" />
+          <span className="treeBulb tb6" />
+        </div>
+      </div>
+      <div className="treeRight" aria-hidden="true">
+        <div className="treeLayer treeLayer1" />
+        <div className="treeLayer treeLayer2" />
+        <div className="treeLayer treeLayer3" />
+        <div className="treeLayer treeLayer4" />
+        <div className="treeLayer treeLayer5" />
+        <div className="treeLayer treeLayer6" />
+        <div className="treeStar" />
+        <div className="treeTinsel" />
+        <div className="treeGarland">
+          <span className="treeBulb tb1" />
+          <span className="treeBulb tb2" />
+          <span className="treeBulb tb3" />
+          <span className="treeBulb tb4" />
+          <span className="treeBulb tb5" />
+          <span className="treeBulb tb6" />
+        </div>
+      </div>
       <div className="shell">
         <section className="panel left">
           <div className="festiveHeader">
@@ -262,9 +647,32 @@ function App() {
                 <h1 className="title">Кто хочет стать миллионером</h1>
                 <p className="subtitle">Новогодний выпуск про Санкт-Петербург</p>
               </div>
-              <button className="themeToggle" onClick={toggleTheme} title="Переключить тему">
-                {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-              </button>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <button
+                    className="themeToggle"
+                    onClick={() => setMusicEnabled(!musicEnabled)}
+                    title={musicEnabled ? 'Выключить музыку' : 'Включить музыку'}
+                  >
+                    {musicEnabled ? '🔊' : '🔇'}
+                  </button>
+                  {musicEnabled && (
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={musicVolume}
+                      onChange={(e) => setMusicVolume(Number(e.target.value))}
+                      style={{ width: 80, cursor: 'pointer' }}
+                      title={`Громкость музыки: ${Math.round(musicVolume * 100)}%`}
+                    />
+                  )}
+                </div>
+                <button className="themeToggle" onClick={toggleTheme} title="Переключить тему">
+                  {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+                </button>
+              </div>
             </div>
           </div>
 
