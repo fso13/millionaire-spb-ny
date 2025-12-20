@@ -24,7 +24,7 @@ function App() {
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   if (gameMode === 'millionaire') {
-    return <MillionaireGame theme={theme} onBack={() => setGameMode('menu')} />
+    return <MillionaireGame onBack={() => setGameMode('menu')} />
   }
 
   if (gameMode === 'yourgame') {

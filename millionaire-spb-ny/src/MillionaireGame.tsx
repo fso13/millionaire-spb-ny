@@ -7,7 +7,6 @@ import losevMoose from './assets/losev-moose.svg'
 import snowman from './assets/snowman.svg'
 
 type GameState = 'intro' | 'playing' | 'finished'
-type Theme = 'dark' | 'light'
 type GameMode = 'newyear' | 'regular'
 
 const LS_DIFFICULTY_KEY = 'millionaire:difficulty'
@@ -117,11 +116,10 @@ function stopSpeaking() {
 }
 
 type MillionaireGameProps = {
-  theme: Theme
   onBack: () => void
 }
 
-function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
+function MillionaireGame({ onBack }: MillionaireGameProps) {
   const [gameMode, setGameMode] = useState<GameMode>(() => {
     const saved = window.localStorage.getItem(LS_GAME_MODE_KEY)
     return saved === 'newyear' || saved === 'regular' ? saved : 'regular'
