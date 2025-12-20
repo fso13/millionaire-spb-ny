@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import type { YourGameQuestion, Difficulty, YourGameData } from './types'
 import yourGameQuestionsJson from './data/yourGameQuestions.json'
+import yourGameQuestionsRegularJson from './data/yourGameQuestionsRegular.json'
 
 type QuestionState = 'hidden' | 'open' | 'answered'
-type GameState = 'selectDifficulty' | 'playing' | 'finished'
+type GameState = 'selectEdition' | 'selectDifficulty' | 'playing' | 'finished'
+type Edition = 'newyear' | 'regular'
 
 type CellState = {
   themeId: string
@@ -25,56 +27,35 @@ function playMeow() {
 }
 
 function YourGame() {
-  const gameData = yourGameQuestionsJson as YourGameData
+  const [edition, setEdition] = useState<Edition | null>(null)
   const [difficulty, setDifficulty] = useState<Difficulty>('easy')
-  const [gameState, setGameState] = useState<GameState>('selectDifficulty')
+  const [gameState, setGameState] = useState<GameState>('selectEdition')
   
-  const themes = gameData[difficulty].themes
+  const gameData = (edition === 'newyear' 
+    ? yourGameQuestionsJson 
+    : edition === 'regular' 
+    ? yourGameQuestionsRegularJson 
+    : null) as YourGameData | null
+  
+  const themes = gameData?.[difficulty]?.themes ?? []
   
   // Создаем сетку вопросов
-  const [grid, setGrid] = useState<CellState[][]>(() => {
-    const initialGrid = themes.map((theme) => {
-      return theme.questions.map((q) => ({
-        themeId: theme.id,
-        questionId: q.id,
-        points: q.points,
-        state: 'hidden' as QuestionState,
-        isCatInBag: q.isCatInBag ?? false,
-        originalThemeId: q.originalThemeId
-      }))
-    })
-
-    // Добавляем случайные "Коты в мешке" при инициализации
-    return initialGrid.map((row) => {
-      return row.map((cell, colIndex) => {
-        // 10% шанс быть "Котом в мешке" (примерно 3 из 30)
-        if (Math.random() < 0.1 && !cell.isCatInBag) {
-          // Выбираем случайную другую тему
-          const otherThemes = themes.filter((t) => t.id !== cell.themeId)
-          const randomTheme = otherThemes[Math.floor(Math.random() * otherThemes.length)]
-          const randomQuestion = randomTheme.questions[colIndex]
-          
-          return {
-            ...cell,
-            isCatInBag: true,
-            originalThemeId: randomTheme.id,
-            questionId: randomQuestion.id
-          }
-        }
-        return cell
-      })
-    })
-  })
+  const [grid, setGrid] = useState<CellState[][]>([])
 
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null)
   const [showAnswer, setShowAnswer] = useState(false)
   const [totalPoints, setTotalPoints] = useState(0)
   const [wrongAnswers, setWrongAnswers] = useState<Set<string>>(new Set())
 
-  // Пересоздаем сетку при изменении сложности
+  // Пересоздаем сетку при изменении сложности или при старте игры
   useEffect(() => {
-    if (gameState === 'playing') {
+    if (gameState === 'playing' && gameData && gameData[difficulty]?.themes) {
       const currentThemes = gameData[difficulty].themes
+      if (currentThemes.length === 0) {
+        console.warn('No themes found for difficulty:', difficulty)
+        return
+      }
+      
       const initialGrid = currentThemes.map((theme) => {
         return theme.questions.map((q) => ({
           themeId: theme.id,
@@ -90,26 +71,32 @@ function YourGame() {
         return row.map((cell, colIndex) => {
           if (Math.random() < 0.1 && !cell.isCatInBag) {
             const otherThemes = currentThemes.filter((t) => t.id !== cell.themeId)
-            const randomTheme = otherThemes[Math.floor(Math.random() * otherThemes.length)]
-            const randomQuestion = randomTheme.questions[colIndex]
-            
-            return {
-              ...cell,
-              isCatInBag: true,
-              originalThemeId: randomTheme.id,
-              questionId: randomQuestion.id
+            if (otherThemes.length > 0) {
+              const randomTheme = otherThemes[Math.floor(Math.random() * otherThemes.length)]
+              const randomQuestion = randomTheme.questions[colIndex]
+              
+              return {
+                ...cell,
+                isCatInBag: true,
+                originalThemeId: randomTheme.id,
+                questionId: randomQuestion.id
+              }
             }
           }
           return cell
         })
       })
+      console.log('Grid created with', newGrid.length, 'rows')
       setGrid(newGrid)
       setTotalPoints(0)
       setSelectedCell(null)
       setShowAnswer(false)
       setWrongAnswers(new Set())
+    } else if (gameState !== 'playing' && gameState !== 'selectDifficulty' && gameState !== 'selectEdition') {
+      // Очищаем сетку только когда игра точно не активна (finished)
+      setGrid([])
     }
-  }, [difficulty, gameState, gameData])
+  }, [difficulty, gameState, gameData, edition])
 
 
   const handleCellClick = (row: number, col: number) => {
@@ -179,7 +166,31 @@ function YourGame() {
     }
   }
 
+
+  const restartGame = () => {
+    setGameState('selectEdition')
+    setEdition(null)
+    setTotalPoints(0)
+    setSelectedCell(null)
+    setShowAnswer(false)
+    setWrongAnswers(new Set())
+  }
+
+  const selectEditionAndContinue = (ed: Edition) => {
+    setEdition(ed)
+    setGameState('selectDifficulty')
+  }
+
   const startGame = () => {
+    if (!gameData) {
+      console.warn('gameData is null, cannot start game. Edition:', edition)
+      return
+    }
+    if (!gameData[difficulty]?.themes || gameData[difficulty].themes.length === 0) {
+      console.warn('No themes found for difficulty:', difficulty, 'Edition:', edition)
+      return
+    }
+    console.log('Starting game with', gameData[difficulty].themes.length, 'themes')
     setGameState('playing')
     setTotalPoints(0)
     setSelectedCell(null)
@@ -187,13 +198,7 @@ function YourGame() {
     setWrongAnswers(new Set())
   }
 
-  const restartGame = () => {
-    setGameState('selectDifficulty')
-    setTotalPoints(0)
-    setSelectedCell(null)
-    setShowAnswer(false)
-    setWrongAnswers(new Set())
-  }
+  // Функции обработчики событий определены выше
 
   const getCurrentQuestion = (): YourGameQuestion | null => {
     if (!selectedCell) return null
@@ -216,7 +221,36 @@ function YourGame() {
         </div>
       </div>
 
-      {gameState === 'selectDifficulty' ? (
+      {gameState === 'selectEdition' ? (
+        <div className="finishBox">
+          <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 20 }}>Выберите выпуск</div>
+          <div className="muted" style={{ marginBottom: 16 }}>
+            Выберите выпуск игры перед началом.
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <button
+              className="primaryBtn"
+              onClick={() => selectEditionAndContinue('newyear')}
+              style={{ padding: '16px 20px', fontSize: 18, textAlign: 'left' }}
+            >
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>Новогодний выпуск</div>
+              <div className="muted" style={{ fontSize: 14 }}>
+                Вопросы про Новый год, Санкт-Петербург, географию, музыку, историю и культуру
+              </div>
+            </button>
+            <button
+              className="primaryBtn"
+              onClick={() => selectEditionAndContinue('regular')}
+              style={{ padding: '16px 20px', fontSize: 18, textAlign: 'left' }}
+            >
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>Обычный выпуск</div>
+              <div className="muted" style={{ fontSize: 14 }}>
+                Вопросы про науку, литературу, кино, спорт, технологии и природу
+              </div>
+            </button>
+          </div>
+        </div>
+      ) : gameState === 'selectDifficulty' ? (
         <div className="finishBox">
           <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 20 }}>Выберите сложность</div>
           <div className="muted" style={{ marginBottom: 16 }}>
@@ -308,7 +342,7 @@ function YourGame() {
             )}
           </div>
         </div>
-      ) : (
+      ) : gameState === 'playing' && grid.length > 0 && themes.length > 0 ? (
         <div className="yourGameGrid">
           <div className="gridHeader">
             <div className="gridHeaderCell"></div>
@@ -321,7 +355,7 @@ function YourGame() {
           {themes.map((theme, rowIndex) => (
             <div key={theme.id} className="gridRow">
               <div className="gridThemeCell">{theme.name}</div>
-              {grid[rowIndex].map((cell, colIndex) => {
+              {grid[rowIndex]?.map((cell, colIndex) => {
                 const questionKey = `${rowIndex}-${colIndex}`
                 const isWrong = wrongAnswers.has(questionKey)
                 const cellClass = `gridCell ${cell.state === 'answered' ? 'answered' : cell.state === 'open' ? 'open' : ''} ${isWrong ? 'wrongAnswer' : ''}`
@@ -345,7 +379,12 @@ function YourGame() {
             </div>
           ))}
         </div>
-      )}
+      ) : gameState === 'playing' ? (
+        <div className="finishBox">
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>Загрузка игры...</div>
+          <div className="muted">Подготовка вопросов...</div>
+        </div>
+      ) : null}
     </div>
   )
 }
