@@ -1248,3 +1248,227 @@
     display: none;
   }
 }
+
+/* Стили для игры "Твоя игра" */
+.yourGameContainer {
+  width: 100%;
+}
+
+.yourGameHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.yourGameStats {
+  display: flex;
+  gap: 10px;
+}
+
+.yourGameGrid {
+  display: grid;
+  grid-template-columns: 200px repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.gridHeader {
+  display: contents;
+}
+
+.gridHeaderCell {
+  padding: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--surfaceBorder);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 215, 125, 0.12) 0%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+}
+
+.gridRow {
+  display: contents;
+}
+
+.gridThemeCell {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--surfaceBorder);
+  background: var(--surfaceBg);
+}
+
+.gridCell {
+  padding: 20px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 24px;
+  border-radius: 12px;
+  border: 2px solid var(--surfaceBorder);
+  background: linear-gradient(
+    180deg,
+    rgba(93, 170, 255, 0.16) 0%,
+    rgba(93, 170, 255, 0.08) 100%
+  );
+  color: inherit;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gridCell:hover:enabled {
+  transform: translateY(-2px);
+  border-color: rgba(255, 215, 125, 0.7);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 215, 125, 0.20) 0%,
+    rgba(255, 190, 70, 0.12) 100%
+  );
+}
+
+.gridCell:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.gridCell.answered {
+  background: rgba(94, 242, 160, 0.14);
+  border-color: rgba(94, 242, 160, 0.5);
+  opacity: 0.7;
+}
+
+.gridCell.answered.wrongAnswer {
+  background: rgba(255, 92, 92, 0.20);
+  border-color: rgba(255, 92, 92, 0.75);
+  opacity: 0.9;
+}
+
+.gridCell.open {
+  background: rgba(255, 215, 125, 0.20);
+  border-color: rgba(255, 215, 125, 0.7);
+}
+
+.gridCell.catInBag {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 92, 92, 0.20) 0%,
+    rgba(255, 92, 92, 0.12) 100%
+  );
+  border-color: rgba(255, 92, 92, 0.6);
+}
+
+.questionModal {
+  margin-top: 20px;
+}
+
+.questionBox {
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--surfaceBorder);
+  background: var(--surfaceBg);
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.questionBox.wrongAnswer {
+  border-color: rgba(255, 92, 92, 0.75);
+  background: rgba(255, 92, 92, 0.14);
+}
+
+.questionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.answerBox {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--surfaceBorder);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.answerLabel {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--textMuted);
+}
+
+.answerText {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(94, 242, 160, 0.1);
+  border: 1px solid rgba(94, 242, 160, 0.3);
+}
+
+.answerButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+@media (max-width: 880px) {
+  .yourGameGrid {
+    grid-template-columns: 150px repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .gridCell {
+    padding: 12px;
+    font-size: 18px;
+    min-height: 60px;
+  }
+
+  .gridThemeCell {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .gridHeaderCell {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .yourGameGrid {
+    grid-template-columns: 120px repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .gridCell {
+    padding: 8px;
+    font-size: 14px;
+    min-height: 50px;
+  }
+
+  .gridThemeCell {
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .gridHeaderCell {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .answerButtons {
+    flex-direction: column;
+  }
+}
