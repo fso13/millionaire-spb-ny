@@ -28,12 +28,19 @@
 }
 
 .shell {
-  width: min(1100px, 100%);
+  width: min(1400px, 100%);
   display: grid;
   grid-template-columns: 1.6fr 0.9fr;
   gap: 18px;
   position: relative;
   z-index: 1;
+}
+
+/* Когда в shell только одна панель (левая), делаем её шире */
+.shell:has(> .panel.left:only-child),
+.shell:has(> .panel.left:first-child:last-child) {
+  grid-template-columns: 1fr;
+  max-width: min(1200px, 100%);
 }
 
 .panel {
@@ -1300,7 +1307,7 @@
   display: flex;
   align-items: center;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 18px;
   border-radius: 12px;
   border: 1px solid var(--surfaceBorder);
   background: var(--surfaceBg);

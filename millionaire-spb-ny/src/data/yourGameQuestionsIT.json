@@ -1,0 +1,663 @@
+{
+  "easy": {
+    "themes": [
+      {
+        "id": "programming-languages",
+        "name": "Языки программирования",
+        "questions": [
+          {
+            "id": "lang-easy-1",
+            "question": "Какой язык программирования используется для создания веб-страниц?",
+            "answer": "JavaScript",
+            "points": 100
+          },
+          {
+            "id": "lang-easy-2",
+            "question": "Какой язык программирования создала компания Microsoft?",
+            "answer": "C#",
+            "points": 200
+          },
+          {
+            "id": "lang-easy-3",
+            "question": "Какой язык программирования назван в честь комедийного шоу?",
+            "answer": "Python",
+            "points": 300
+          },
+          {
+            "id": "lang-easy-4",
+            "question": "Какой язык программирования используется для разработки Android приложений?",
+            "answer": "Java или Kotlin",
+            "points": 400
+          },
+          {
+            "id": "lang-easy-5",
+            "question": "Какой язык программирования создал Брендан Эйх за 10 дней?",
+            "answer": "JavaScript",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "algorithms",
+        "name": "Алгоритмы",
+        "questions": [
+          {
+            "id": "alg-easy-1",
+            "question": "Как называется алгоритм поиска элемента в отсортированном массиве?",
+            "answer": "Бинарный поиск",
+            "points": 100
+          },
+          {
+            "id": "alg-easy-2",
+            "question": "Как называется структура данных 'первый пришел - первый ушел'?",
+            "answer": "Очередь (Queue)",
+            "points": 200
+          },
+          {
+            "id": "alg-easy-3",
+            "question": "Как называется структура данных 'последний пришел - первый ушел'?",
+            "answer": "Стек (Stack)",
+            "points": 300
+          },
+          {
+            "id": "alg-easy-4",
+            "question": "Какой алгоритм сортировки имеет сложность O(n log n)?",
+            "answer": "Быстрая сортировка или сортировка слиянием",
+            "points": 400
+          },
+          {
+            "id": "alg-easy-5",
+            "question": "Как называется алгоритм поиска кратчайшего пути в графе?",
+            "answer": "Алгоритм Дейкстры",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "databases",
+        "name": "Базы данных",
+        "questions": [
+          {
+            "id": "db-easy-1",
+            "question": "Что означает аббревиатура SQL?",
+            "answer": "Structured Query Language",
+            "points": 100
+          },
+          {
+            "id": "db-easy-2",
+            "question": "Как называется база данных от Oracle?",
+            "answer": "Oracle Database",
+            "points": 200
+          },
+          {
+            "id": "db-easy-3",
+            "question": "Как называется популярная NoSQL база данных?",
+            "answer": "MongoDB",
+            "points": 300
+          },
+          {
+            "id": "db-easy-4",
+            "question": "Что означает ACID в базах данных?",
+            "answer": "Atomicity, Consistency, Isolation, Durability",
+            "points": 400
+          },
+          {
+            "id": "db-easy-5",
+            "question": "Как называется база данных от Microsoft?",
+            "answer": "SQL Server",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "web-development",
+        "name": "Веб-разработка",
+        "questions": [
+          {
+            "id": "web-easy-1",
+            "question": "Что означает аббревиатура HTTP?",
+            "answer": "HyperText Transfer Protocol",
+            "points": 100
+          },
+          {
+            "id": "web-easy-2",
+            "question": "Какой протокол используется для безопасной передачи данных?",
+            "answer": "HTTPS",
+            "points": 200
+          },
+          {
+            "id": "web-easy-3",
+            "question": "Какой фреймворк для JavaScript создала компания Facebook?",
+            "answer": "React",
+            "points": 300
+          },
+          {
+            "id": "web-easy-4",
+            "question": "Что означает аббревиатура CSS?",
+            "answer": "Cascading Style Sheets",
+            "points": 400
+          },
+          {
+            "id": "web-easy-5",
+            "question": "Какой язык используется для стилизации веб-страниц?",
+            "answer": "CSS",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "operating-systems",
+        "name": "ОС и системы",
+        "questions": [
+          {
+            "id": "os-easy-1",
+            "question": "Какая операционная система используется на большинстве серверов?",
+            "answer": "Linux",
+            "points": 100
+          },
+          {
+            "id": "os-easy-2",
+            "question": "Как называется операционная система от Apple для компьютеров?",
+            "answer": "macOS",
+            "points": 200
+          },
+          {
+            "id": "os-easy-3",
+            "question": "Какой процесс управляет памятью в операционной системе?",
+            "answer": "Менеджер памяти",
+            "points": 300
+          },
+          {
+            "id": "os-easy-4",
+            "question": "Как называется ядро операционной системы Linux?",
+            "answer": "Linux kernel",
+            "points": 400
+          },
+          {
+            "id": "os-easy-5",
+            "question": "Какой файловый формат используется в Windows?",
+            "answer": "NTFS",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "networks-security",
+        "name": "Сети и безопасность",
+        "questions": [
+          {
+            "id": "net-easy-1",
+            "question": "Что означает аббревиатура IP?",
+            "answer": "Internet Protocol",
+            "points": 100
+          },
+          {
+            "id": "net-easy-2",
+            "question": "Какой порт используется для HTTP?",
+            "answer": "80",
+            "points": 200
+          },
+          {
+            "id": "net-easy-3",
+            "question": "Что означает аббревиатура VPN?",
+            "answer": "Virtual Private Network",
+            "points": 300
+          },
+          {
+            "id": "net-easy-4",
+            "question": "Какой протокол используется для отправки электронной почты?",
+            "answer": "SMTP",
+            "points": 400
+          },
+          {
+            "id": "net-easy-5",
+            "question": "Что означает аббревиатура DNS?",
+            "answer": "Domain Name System",
+            "points": 500
+          }
+        ]
+      }
+    ]
+  },
+  "medium": {
+    "themes": [
+      {
+        "id": "programming-languages",
+        "name": "Языки программирования",
+        "questions": [
+          {
+            "id": "lang-med-1",
+            "question": "Какой язык программирования использует компилятор LLVM?",
+            "answer": "Swift или Rust",
+            "points": 100
+          },
+          {
+            "id": "lang-med-2",
+            "question": "Какой язык программирования создан для системного программирования?",
+            "answer": "Rust или C++",
+            "points": 200
+          },
+          {
+            "id": "lang-med-3",
+            "question": "Какой язык программирования использует виртуальную машину JVM?",
+            "answer": "Java",
+            "points": 300
+          },
+          {
+            "id": "lang-med-4",
+            "question": "Какой язык программирования создан компанией Mozilla?",
+            "answer": "Rust",
+            "points": 400
+          },
+          {
+            "id": "lang-med-5",
+            "question": "Какой язык программирования использует интерпретатор CPython?",
+            "answer": "Python",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "algorithms",
+        "name": "Алгоритмы",
+        "questions": [
+          {
+            "id": "alg-med-1",
+            "question": "Какой алгоритм используется для поиска минимального остовного дерева?",
+            "answer": "Алгоритм Краскала или Прима",
+            "points": 100
+          },
+          {
+            "id": "alg-med-2",
+            "question": "Как называется структура данных для быстрого поиска?",
+            "answer": "Хеш-таблица",
+            "points": 200
+          },
+          {
+            "id": "alg-med-3",
+            "question": "Какой алгоритм сортировки имеет сложность O(n²)?",
+            "answer": "Пузырьковая сортировка",
+            "points": 300
+          },
+          {
+            "id": "alg-med-4",
+            "question": "Как называется алгоритм обхода графа в ширину?",
+            "answer": "BFS (Breadth-First Search)",
+            "points": 400
+          },
+          {
+            "id": "alg-med-5",
+            "question": "Как называется алгоритм обхода графа в глубину?",
+            "answer": "DFS (Depth-First Search)",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "databases",
+        "name": "Базы данных",
+        "questions": [
+          {
+            "id": "db-med-1",
+            "question": "Как называется база данных от PostgreSQL?",
+            "answer": "PostgreSQL",
+            "points": 100
+          },
+          {
+            "id": "db-med-2",
+            "question": "Что означает нормализация в базах данных?",
+            "answer": "Процесс организации данных для уменьшения избыточности",
+            "points": 200
+          },
+          {
+            "id": "db-med-3",
+            "question": "Как называется база данных от Redis?",
+            "answer": "Redis",
+            "points": 300
+          },
+          {
+            "id": "db-med-4",
+            "question": "Что означает JOIN в SQL?",
+            "answer": "Объединение таблиц",
+            "points": 400
+          },
+          {
+            "id": "db-med-5",
+            "question": "Как называется база данных от Amazon?",
+            "answer": "DynamoDB",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "web-development",
+        "name": "Веб-разработка",
+        "questions": [
+          {
+            "id": "web-med-1",
+            "question": "Какой фреймворк для JavaScript создала компания Google?",
+            "answer": "Angular",
+            "points": 100
+          },
+          {
+            "id": "web-med-2",
+            "question": "Что означает аббревиатура REST?",
+            "answer": "Representational State Transfer",
+            "points": 200
+          },
+          {
+            "id": "web-med-3",
+            "question": "Какой протокол используется для веб-сокетов?",
+            "answer": "WebSocket",
+            "points": 300
+          },
+          {
+            "id": "web-med-4",
+            "question": "Что означает аббревиатура DOM?",
+            "answer": "Document Object Model",
+            "points": 400
+          },
+          {
+            "id": "web-med-5",
+            "question": "Какой фреймворк для Node.js используется для создания API?",
+            "answer": "Express",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "operating-systems",
+        "name": "ОС и системы",
+        "questions": [
+          {
+            "id": "os-med-1",
+            "question": "Как называется процесс планирования задач в ОС?",
+            "answer": "Планировщик задач",
+            "points": 100
+          },
+          {
+            "id": "os-med-2",
+            "question": "Какой алгоритм используется для управления памятью?",
+            "answer": "Paging или Segmentation",
+            "points": 200
+          },
+          {
+            "id": "os-med-3",
+            "question": "Как называется механизм синхронизации процессов?",
+            "answer": "Семафор или мьютекс",
+            "points": 300
+          },
+          {
+            "id": "os-med-4",
+            "question": "Какой файловый формат используется в Linux?",
+            "answer": "ext4",
+            "points": 400
+          },
+          {
+            "id": "os-med-5",
+            "question": "Как называется виртуализация на уровне ОС?",
+            "answer": "Контейнеризация",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "networks-security",
+        "name": "Сети и безопасность",
+        "questions": [
+          {
+            "id": "net-med-1",
+            "question": "Какой порт используется для HTTPS?",
+            "answer": "443",
+            "points": 100
+          },
+          {
+            "id": "net-med-2",
+            "question": "Что означает аббревиатура TLS?",
+            "answer": "Transport Layer Security",
+            "points": 200
+          },
+          {
+            "id": "net-med-3",
+            "question": "Какой протокол используется для передачи файлов?",
+            "answer": "FTP",
+            "points": 300
+          },
+          {
+            "id": "net-med-4",
+            "question": "Что означает аббревиатура SSH?",
+            "answer": "Secure Shell",
+            "points": 400
+          },
+          {
+            "id": "net-med-5",
+            "question": "Какой протокол используется для маршрутизации в интернете?",
+            "answer": "BGP",
+            "points": 500
+          }
+        ]
+      }
+    ]
+  },
+  "hard": {
+    "themes": [
+      {
+        "id": "programming-languages",
+        "name": "Языки программирования",
+        "questions": [
+          {
+            "id": "lang-hard-1",
+            "question": "Какой язык программирования использует систему типов с зависимостями?",
+            "answer": "Idris или Agda",
+            "points": 100
+          },
+          {
+            "id": "lang-hard-2",
+            "question": "Какой язык программирования создан для функционального программирования?",
+            "answer": "Haskell",
+            "points": 200
+          },
+          {
+            "id": "lang-hard-3",
+            "question": "Какой язык программирования использует систему владения (ownership)?",
+            "answer": "Rust",
+            "points": 300
+          },
+          {
+            "id": "lang-hard-4",
+            "question": "Какой язык программирования использует виртуальную машину BEAM?",
+            "answer": "Erlang или Elixir",
+            "points": 400
+          },
+          {
+            "id": "lang-hard-5",
+            "question": "Какой язык программирования использует систему типов с линейными типами?",
+            "answer": "Rust",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "algorithms",
+        "name": "Алгоритмы",
+        "questions": [
+          {
+            "id": "alg-hard-1",
+            "question": "Какой алгоритм используется для поиска подстроки в строке?",
+            "answer": "Алгоритм Кнута-Морриса-Пратта",
+            "points": 100
+          },
+          {
+            "id": "alg-hard-2",
+            "question": "Как называется структура данных для хранения префиксов?",
+            "answer": "Trie (префиксное дерево)",
+            "points": 200
+          },
+          {
+            "id": "alg-hard-3",
+            "question": "Какой алгоритм используется для поиска максимального потока?",
+            "answer": "Алгоритм Форда-Фалкерсона",
+            "points": 300
+          },
+          {
+            "id": "alg-hard-4",
+            "question": "Как называется алгоритм для поиска кратчайшего пути во взвешенном графе?",
+            "answer": "Алгоритм Беллмана-Форда",
+            "points": 400
+          },
+          {
+            "id": "alg-hard-5",
+            "question": "Какой алгоритм используется для поиска всех простых чисел?",
+            "answer": "Решето Эратосфена",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "databases",
+        "name": "Базы данных",
+        "questions": [
+          {
+            "id": "db-hard-1",
+            "question": "Что означает CAP теорема?",
+            "answer": "Consistency, Availability, Partition tolerance",
+            "points": 100
+          },
+          {
+            "id": "db-hard-2",
+            "question": "Как называется база данных от Cassandra?",
+            "answer": "Apache Cassandra",
+            "points": 200
+          },
+          {
+            "id": "db-hard-3",
+            "question": "Что означает изоляция транзакций в SQL?",
+            "answer": "Уровень изоляции определяет видимость изменений",
+            "points": 300
+          },
+          {
+            "id": "db-hard-4",
+            "question": "Как называется база данных от Elasticsearch?",
+            "answer": "Elasticsearch",
+            "points": 400
+          },
+          {
+            "id": "db-hard-5",
+            "question": "Что означает BASE в базах данных?",
+            "answer": "Basically Available, Soft state, Eventually consistent",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "web-development",
+        "name": "Веб-разработка",
+        "questions": [
+          {
+            "id": "web-hard-1",
+            "question": "Что означает аббревиатура GraphQL?",
+            "answer": "Graph Query Language",
+            "points": 100
+          },
+          {
+            "id": "web-hard-2",
+            "question": "Какой протокол используется для серверных событий?",
+            "answer": "Server-Sent Events (SSE)",
+            "points": 200
+          },
+          {
+            "id": "web-hard-3",
+            "question": "Что означает аббревиатура JWT?",
+            "answer": "JSON Web Token",
+            "points": 300
+          },
+          {
+            "id": "web-hard-4",
+            "question": "Какой фреймворк для Node.js использует архитектуру middleware?",
+            "answer": "Express",
+            "points": 400
+          },
+          {
+            "id": "web-hard-5",
+            "question": "Что означает аббревиатура SSR?",
+            "answer": "Server-Side Rendering",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "operating-systems",
+        "name": "ОС и системы",
+        "questions": [
+          {
+            "id": "os-hard-1",
+            "question": "Как называется алгоритм планирования задач Round Robin?",
+            "answer": "Циклическое планирование",
+            "points": 100
+          },
+          {
+            "id": "os-hard-2",
+            "question": "Какой механизм используется для предотвращения взаимоблокировок?",
+            "answer": "Банкирский алгоритм",
+            "points": 200
+          },
+          {
+            "id": "os-hard-3",
+            "question": "Как называется виртуализация на уровне железа?",
+            "answer": "Аппаратная виртуализация",
+            "points": 300
+          },
+          {
+            "id": "os-hard-4",
+            "question": "Какой файловый формат используется в macOS?",
+            "answer": "APFS",
+            "points": 400
+          },
+          {
+            "id": "os-hard-5",
+            "question": "Как называется система управления контейнерами?",
+            "answer": "Docker или Kubernetes",
+            "points": 500
+          }
+        ]
+      },
+      {
+        "id": "networks-security",
+        "name": "Сети и безопасность",
+        "questions": [
+          {
+            "id": "net-hard-1",
+            "question": "Что означает аббревиатура OAuth?",
+            "answer": "Open Authorization",
+            "points": 100
+          },
+          {
+            "id": "net-hard-2",
+            "question": "Какой протокол используется для безопасной передачи файлов?",
+            "answer": "SFTP",
+            "points": 200
+          },
+          {
+            "id": "net-hard-3",
+            "question": "Что означает аббревиатура XSS?",
+            "answer": "Cross-Site Scripting",
+            "points": 300
+          },
+          {
+            "id": "net-hard-4",
+            "question": "Какой протокол используется для обнаружения устройств в сети?",
+            "answer": "mDNS или Bonjour",
+            "points": 400
+          },
+          {
+            "id": "net-hard-5",
+            "question": "Что означает аббревиатура CSRF?",
+            "answer": "Cross-Site Request Forgery",
+            "points": 500
+          }
+        ]
+      }
+    ]
+  }
+}
+

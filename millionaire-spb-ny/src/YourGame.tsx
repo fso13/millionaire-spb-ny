@@ -3,10 +3,11 @@ import './App.css'
 import type { YourGameQuestion, Difficulty, YourGameData } from './types'
 import yourGameQuestionsJson from './data/yourGameQuestions.json'
 import yourGameQuestionsRegularJson from './data/yourGameQuestionsRegular.json'
+import yourGameQuestionsITJson from './data/yourGameQuestionsIT.json'
 
 type QuestionState = 'hidden' | 'open' | 'answered'
 type GameState = 'selectEdition' | 'selectDifficulty' | 'playing' | 'finished'
-type Edition = 'newyear' | 'regular'
+type Edition = 'newyear' | 'regular' | 'it'
 
 type CellState = {
   themeId: string
@@ -35,9 +36,21 @@ function YourGame() {
     ? yourGameQuestionsJson 
     : edition === 'regular' 
     ? yourGameQuestionsRegularJson 
+    : edition === 'it'
+    ? yourGameQuestionsITJson
     : null) as YourGameData | null
   
-  const themes = gameData?.[difficulty]?.themes ?? []
+  const baseThemes = gameData?.[difficulty]?.themes ?? []
+  
+  // Сохраняем замененные темы для regular edition
+  const [themes, setThemes] = useState(baseThemes)
+  
+  // Обновляем themes при изменении baseThemes (когда меняется difficulty или edition)
+  useEffect(() => {
+    if (gameState !== 'playing') {
+      setThemes(baseThemes)
+    }
+  }, [baseThemes, gameState])
   
   // Создаем сетку вопросов
   const [grid, setGrid] = useState<CellState[][]>([])
@@ -50,10 +63,23 @@ function YourGame() {
   // Пересоздаем сетку при изменении сложности или при старте игры
   useEffect(() => {
     if (gameState === 'playing' && gameData && gameData[difficulty]?.themes) {
-      const currentThemes = gameData[difficulty].themes
+      let currentThemes = [...baseThemes]
       if (currentThemes.length === 0) {
         console.warn('No themes found for difficulty:', difficulty)
         return
+      }
+      
+      // Для regular edition случайно выбираем 6 категорий из всех доступных
+      if (edition === 'regular') {
+        // Случайно перемешиваем все доступные категории и выбираем 6
+        const shuffledThemes = [...baseThemes].sort(() => Math.random() - 0.5)
+        currentThemes = shuffledThemes.slice(0, 6)
+        
+        // Сохраняем выбранные темы
+        setThemes(currentThemes)
+      } else {
+        // Для других edition используем базовые темы
+        setThemes(baseThemes)
       }
       
       const initialGrid = currentThemes.map((theme) => {
@@ -95,8 +121,9 @@ function YourGame() {
     } else if (gameState !== 'playing' && gameState !== 'selectDifficulty' && gameState !== 'selectEdition') {
       // Очищаем сетку только когда игра точно не активна (finished)
       setGrid([])
+      setThemes(baseThemes)
     }
-  }, [difficulty, gameState, gameData, edition])
+  }, [difficulty, gameState, gameData, edition, baseThemes])
 
 
   const handleCellClick = (row: number, col: number) => {
@@ -246,6 +273,16 @@ function YourGame() {
               <div style={{ fontWeight: 700, marginBottom: 4 }}>Обычный выпуск</div>
               <div className="muted" style={{ fontSize: 14 }}>
                 Вопросы про науку, литературу, кино, спорт, технологии и природу
+              </div>
+            </button>
+            <button
+              className="primaryBtn"
+              onClick={() => selectEditionAndContinue('it')}
+              style={{ padding: '16px 20px', fontSize: 18, textAlign: 'left' }}
+            >
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>IT/Программирование</div>
+              <div className="muted" style={{ fontSize: 14 }}>
+                Вопросы про языки программирования, алгоритмы, базы данных, веб-разработку, ОС и сети
               </div>
             </button>
           </div>

@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import type { AnswerKey, Difficulty, MillionaireQuestion } from './types'
-import questionsJson from './data/questions.json'
+import questionsNewYearJson from './data/questions.json'
+import questionsRegularJson from './data/questionsRegular.json'
 import losevMoose from './assets/losev-moose.svg'
 import snowman from './assets/snowman.svg'
 
 type GameState = 'intro' | 'playing' | 'finished'
 type Theme = 'dark' | 'light'
+type GameMode = 'newyear' | 'regular'
 
 const LS_DIFFICULTY_KEY = 'millionaire:difficulty'
 const LS_EARNED_TOTAL_KEY = 'millionaire:earnedPoints'
-const LS_MUSIC_ENABLED_KEY = 'millionaire:musicEnabled'
-const LS_MUSIC_VOLUME_KEY = 'millionaire:musicVolume'
+const LS_GAME_MODE_KEY = 'millionaire:gameMode'
 
 function normalizeQuestions(input: unknown): MillionaireQuestion[] {
   if (!Array.isArray(input)) return []
@@ -51,179 +52,15 @@ function pickOne<T>(arr: T[]): T | null {
   return arr[Math.floor(Math.random() * arr.length)] ?? null
 }
 
-// Полифоническая новогодняя мелодия (Jingle Bells)
-function createHolidayMusic(audioContext: AudioContext, volume: number): { play: () => void; stop: () => void; setVolume: (v: number) => void } {
-  let isPlaying = false
-  let timeoutId: number | null = null
-  let currentVolume = volume
-
-  // Основная мелодия (верхний голос)
-  const melody = [
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 523.25, duration: 400 }, // C5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 523.25, duration: 400 }, // C5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 587.33, duration: 200 }, // D5
-    { freq: 392.00, duration: 200 }, // G4
-    { freq: 440.00, duration: 200 }, // A4
-    { freq: 523.25, duration: 600 }, // C5
-    { freq: 0, duration: 200 }, // пауза
-    { freq: 659.25, duration: 200 }, // E5
-    { freq: 659.25, duration: 200 }, // E5
-    { freq: 659.25, duration: 300 }, // E5
-    { freq: 659.25, duration: 200 }, // E5
-    { freq: 659.25, duration: 200 }, // E5
-    { freq: 659.25, duration: 300 }, // E5
-    { freq: 659.25, duration: 200 }, // E5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 523.25, duration: 200 }, // C5
-    { freq: 587.33, duration: 200 }, // D5
-    { freq: 587.33, duration: 200 }, // D5
-    { freq: 659.25, duration: 200 }, // E5
-    { freq: 523.25, duration: 400 }, // C5
-  ]
-
-  // Аккомпанемент (средний голос - аккорды)
-  const harmony = [
-    { freqs: [261.63, 329.63], duration: 200 }, // C3, E3
-    { freqs: [261.63, 329.63], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 400 },
-    { freqs: [261.63, 329.63], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 400 },
-    { freqs: [293.66, 349.23], duration: 200 }, // D3, F3
-    { freqs: [293.66, 349.23], duration: 200 },
-    { freqs: [196.00, 246.94], duration: 200 }, // G2, B2
-    { freqs: [220.00, 277.18], duration: 200 }, // A2, C#3
-    { freqs: [261.63, 329.63], duration: 600 },
-    { freqs: [], duration: 200 }, // пауза
-    { freqs: [329.63, 392.00], duration: 200 }, // E3, G3
-    { freqs: [329.63, 392.00], duration: 200 },
-    { freqs: [329.63, 392.00], duration: 300 },
-    { freqs: [329.63, 392.00], duration: 200 },
-    { freqs: [329.63, 392.00], duration: 200 },
-    { freqs: [329.63, 392.00], duration: 300 },
-    { freqs: [329.63, 392.00], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 200 },
-    { freqs: [293.66, 349.23], duration: 200 },
-    { freqs: [293.66, 349.23], duration: 200 },
-    { freqs: [329.63, 392.00], duration: 200 },
-    { freqs: [261.63, 329.63], duration: 400 },
-  ]
-
-  // Басовый голос
-  const bass = [
-    { freq: 130.81, duration: 200 }, // C2
-    { freq: 130.81, duration: 200 },
-    { freq: 130.81, duration: 400 },
-    { freq: 130.81, duration: 200 },
-    { freq: 130.81, duration: 200 },
-    { freq: 130.81, duration: 400 },
-    { freq: 146.83, duration: 200 }, // D2
-    { freq: 146.83, duration: 200 },
-    { freq: 98.00, duration: 200 }, // G1
-    { freq: 110.00, duration: 200 }, // A1
-    { freq: 130.81, duration: 600 },
-    { freq: 0, duration: 200 },
-    { freq: 164.81, duration: 200 }, // E2
-    { freq: 164.81, duration: 200 },
-    { freq: 164.81, duration: 300 },
-    { freq: 164.81, duration: 200 },
-    { freq: 164.81, duration: 200 },
-    { freq: 164.81, duration: 300 },
-    { freq: 164.81, duration: 200 },
-    { freq: 130.81, duration: 200 },
-    { freq: 130.81, duration: 200 },
-    { freq: 130.81, duration: 200 },
-    { freq: 130.81, duration: 200 },
-    { freq: 146.83, duration: 200 },
-    { freq: 146.83, duration: 200 },
-    { freq: 164.81, duration: 200 },
-    { freq: 130.81, duration: 400 },
-  ]
-
-  const playNote = (freq: number, startTime: number, duration: number, volumeMultiplier: number = 1) => {
-    if (freq === 0) return
-    
-    const osc = audioContext.createOscillator()
-    const gain = audioContext.createGain()
-    
-    osc.type = 'sine'
-    osc.frequency.value = freq
-    const baseGain = currentVolume * 0.03 * volumeMultiplier
-    gain.gain.setValueAtTime(baseGain, startTime)
-    gain.gain.exponentialRampToValueAtTime(baseGain * 0.1, startTime + duration / 1000)
-    
-    osc.connect(gain)
-    gain.connect(audioContext.destination)
-    
-    osc.start(startTime)
-    osc.stop(startTime + duration / 1000)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
-
-  const playChord = (freqs: number[], startTime: number, duration: number) => {
-    freqs.forEach((freq) => {
-      playNote(freq, startTime, duration, 0.6)
-    })
-  }
-
-  const playLoop = () => {
-    if (!isPlaying) return
-    
-    const startTime = audioContext.currentTime
-    let currentTime = startTime
-    
-    melody.forEach((note, i) => {
-      // Основная мелодия
-      playNote(note.freq, currentTime, note.duration, 1.0)
-      
-      // Аккомпанемент
-      if (harmony[i]) {
-        playChord(harmony[i].freqs, currentTime, harmony[i].duration)
-      }
-      
-      // Бас
-      if (bass[i]) {
-        playNote(bass[i].freq, currentTime, bass[i].duration, 0.8)
-      }
-      
-      currentTime += note.duration / 1000
-    })
-    
-    // Повторяем через 4.5 секунды
-    timeoutId = window.setTimeout(() => {
-      if (isPlaying) {
-        playLoop()
-      }
-    }, 4500) as unknown as number
-  }
-
-  return {
-    play: () => {
-      if (isPlaying) return
-      isPlaying = true
-      playLoop()
-    },
-    stop: () => {
-      isPlaying = false
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId)
-        timeoutId = null
-      }
-    },
-    setVolume: (v: number) => {
-      currentVolume = Math.max(0, Math.min(1, v))
-    }
-  }
+  return shuffled
 }
+
 
 // Озвучка текста через SpeechSynthesis
 function speakText(text: string, onEnd?: () => void) {
@@ -285,6 +122,11 @@ type MillionaireGameProps = {
 }
 
 function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
+  const [gameMode, setGameMode] = useState<GameMode>(() => {
+    const saved = window.localStorage.getItem(LS_GAME_MODE_KEY)
+    return saved === 'newyear' || saved === 'regular' ? saved : 'regular'
+  })
+
   const [difficulty, setDifficulty] = useState<Difficulty>(() => {
     const saved = window.localStorage.getItem(LS_DIFFICULTY_KEY)
     return saved === 'easy' || saved === 'medium' || saved === 'hard' ? saved : 'easy'
@@ -296,24 +138,18 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
     return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0
   })
 
-  const [musicEnabled, setMusicEnabled] = useState(() => {
-    const saved = window.localStorage.getItem(LS_MUSIC_ENABLED_KEY)
-    return saved === 'true'
-  })
-
-  const [musicVolume, setMusicVolume] = useState(() => {
-    const saved = window.localStorage.getItem(LS_MUSIC_VOLUME_KEY)
-    const parsed = saved ? Number(saved) : 0.3
-    return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : 0.3
-  })
-
-  const audioContextRef = useRef<AudioContext | null>(null)
-  const musicControllerRef = useRef<ReturnType<typeof createHolidayMusic> | null>(null)
   const currentUtteranceRef = useRef<number>(0)
 
-  const questionSets = useMemo(() => normalizeQuestionsByDifficulty(questionsJson), [])
-  const questions = questionSets[difficulty]
-  const total = Math.min(15, questions.length)
+  // Выбираем файл вопросов в зависимости от режима
+  const questionsJson = gameMode === 'newyear' ? questionsNewYearJson : questionsRegularJson
+  const questionSets = useMemo(() => normalizeQuestionsByDifficulty(questionsJson), [questionsJson])
+  const baseQuestions = questionSets[difficulty]
+  
+  // Выбираем ровно 15 случайных вопросов из доступных для разнообразия
+  const [selectedQuestions, setSelectedQuestions] = useState<MillionaireQuestion[]>([])
+  
+  const questions = selectedQuestions.length > 0 ? selectedQuestions : []
+  const total = 15
 
   const [gameState, setGameState] = useState<GameState>('intro')
   const [idx, setIdx] = useState(0)
@@ -334,6 +170,24 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
   const already5050ThisQuestion = Boolean(current?.id && hiddenByQuestionId[current.id]?.length)
 
   useEffect(() => {
+    window.localStorage.setItem(LS_GAME_MODE_KEY, gameMode)
+    // Сбрасываем игру при изменении режима
+    if (gameState !== 'intro') {
+      setGameState('intro')
+      setIdx(0)
+      setSelected(null)
+      setConfirmed(false)
+      setReveal(false)
+      setShowCorrectMessage(false)
+      setResult(null)
+      setPoints(0)
+      setPurchasesCount(0)
+      setHiddenByQuestionId({})
+      setCallOpen(false)
+    }
+  }, [gameMode])
+
+  useEffect(() => {
     window.localStorage.setItem(LS_DIFFICULTY_KEY, difficulty)
   }, [difficulty])
 
@@ -341,49 +195,17 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
     window.localStorage.setItem(LS_EARNED_TOTAL_KEY, String(earnedTotal))
   }, [earnedTotal])
 
+  // Выбираем 15 случайных вопросов при изменении сложности или режима
   useEffect(() => {
-    window.localStorage.setItem(LS_MUSIC_ENABLED_KEY, String(musicEnabled))
-  }, [musicEnabled])
-
-  useEffect(() => {
-    window.localStorage.setItem(LS_MUSIC_VOLUME_KEY, String(musicVolume))
-    if (musicControllerRef.current) {
-      musicControllerRef.current.setVolume(musicVolume)
-    }
-  }, [musicVolume])
-
-  // Инициализация аудио контекста и музыки
-  useEffect(() => {
-    if (!audioContextRef.current) {
-      try {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
-        musicControllerRef.current = createHolidayMusic(audioContextRef.current, musicVolume)
-      } catch (e) {
-        console.warn('AudioContext not supported', e)
-      }
-    }
-
-    return () => {
-      if (musicControllerRef.current) {
-        musicControllerRef.current.stop()
-      }
-      stopSpeaking()
-    }
-  }, [])
-
-  // Управление фоновой музыкой
-  useEffect(() => {
-    if (!musicControllerRef.current) return
-
-    if (musicEnabled) {
-      if (audioContextRef.current?.state === 'suspended') {
-        audioContextRef.current.resume()
-      }
-      musicControllerRef.current.play()
+    if (baseQuestions.length > 0) {
+      const shuffled = shuffleArray(baseQuestions)
+      // Выбираем ровно 15 вопросов (или все, если их меньше)
+      const selected = shuffled.slice(0, Math.min(15, shuffled.length))
+      setSelectedQuestions(selected)
     } else {
-      musicControllerRef.current.stop()
+      setSelectedQuestions([])
     }
-  }, [musicEnabled])
+  }, [difficulty, baseQuestions, gameMode])
 
   // Загрузка голосов для синтеза речи
   useEffect(() => {
@@ -399,6 +221,14 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
   }, [])
 
   const start = () => {
+    // Выбираем 15 случайных вопросов перед началом новой игры
+    if (baseQuestions.length > 0) {
+      const shuffled = shuffleArray(baseQuestions)
+      // Выбираем ровно 15 вопросов (или все, если их меньше)
+      const selected = shuffled.slice(0, Math.min(15, shuffled.length))
+      setSelectedQuestions(selected)
+    }
+    
     setGameState('playing')
     setIdx(0)
     setSelected(null)
@@ -413,6 +243,14 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
   }
 
   const restart = () => {
+    // Выбираем 15 случайных вопросов перед новым прохождением
+    if (baseQuestions.length > 0) {
+      const shuffled = shuffleArray(baseQuestions)
+      // Выбираем ровно 15 вопросов (или все, если их меньше)
+      const selected = shuffled.slice(0, Math.min(15, shuffled.length))
+      setSelectedQuestions(selected)
+    }
+    
     setGameState('intro')
     setIdx(0)
     setSelected(null)
@@ -502,25 +340,37 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
     if (!current) return []
     const correctKey = current.correct
     const correctText = current.options[correctKey]
-    const funny = [
+    const funnyNewYear = [
       'Секунду… я включу «режим умного лося».',
       'Я тут рядом с ёлкой, но мозги не замёрзли.',
       'Шуршу копытами по знаниям…',
       'Сейчас скажу уверенно… как будто я в викторине каждый день.',
       'У меня на рогах Wi‑Fi ловит лучше, чем у людей.'
     ]
+    const funnyRegular = [
+      'Секунду… я включу «режим умного лося».',
+      'Я тут пасусь на знаниях, но мозги не заржавели.',
+      'Шуршу копытами по информации…',
+      'Сейчас скажу уверенно… как будто я в викторине каждый день.',
+      'У меня на рогах Wi‑Fi ловит лучше, чем у людей.'
+    ]
+    const funny = gameMode === 'newyear' ? funnyNewYear : funnyRegular
     const filler = pickOne(funny) ?? funny[0]
+    const greeting = gameMode === 'newyear' 
+      ? 'Алло-алло! Лось на связи. Слышу вас отлично, даже лучше, чем снег под ногами.'
+      : 'Алло-алло! Лось на связи. Слышу вас отлично, связь хорошая.'
+    const location = gameMode === 'newyear' ? 'в Питере' : ''
     return [
       { who: 'Вы', text: 'Жора, привет! Нужна подсказка по вопросу.' },
-      { who: 'Жора Лосев', text: 'Алло-алло! Лось на связи. Слышу вас отлично, даже лучше, чем снег под ногами.' },
+      { who: 'Жора Лосев', text: greeting },
       { who: 'Жора Лосев', text: filler },
       {
         who: 'Жора Лосев',
-        text: `Я бы ставил на вариант ${correctKey}: «${correctText}». Если что — скажем, что связь в Питере была с помехами.`
+        text: `Я бы ставил на вариант ${correctKey}: «${correctText}». Если что — скажем, что связь ${location} была с помехами.`
       },
       { who: 'Жора Лосев', text: 'Ладно, удачи! И не забывай: главное — не переживай, а пережёвывай.' }
     ]
-  }, [current])
+  }, [current, gameMode])
 
   // Озвучка диалога Лося
   useEffect(() => {
@@ -578,82 +428,69 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
 
   return (
     <div className="app">
-      {/* Декоративные ёлки с гирляндами */}
-      <div className="treeLeft" aria-hidden="true">
-        <div className="treeLayer treeLayer1" />
-        <div className="treeLayer treeLayer2" />
-        <div className="treeLayer treeLayer3" />
-        <div className="treeLayer treeLayer4" />
-        <div className="treeLayer treeLayer5" />
-        <div className="treeLayer treeLayer6" />
-        <div className="treeStar" />
-        <div className="treeTinsel" />
-        <div className="treeGarland">
-          <span className="treeBulb tb1" />
-          <span className="treeBulb tb2" />
-          <span className="treeBulb tb3" />
-          <span className="treeBulb tb4" />
-          <span className="treeBulb tb5" />
-          <span className="treeBulb tb6" />
-        </div>
-      </div>
-      <div className="treeRight" aria-hidden="true">
-        <div className="treeLayer treeLayer1" />
-        <div className="treeLayer treeLayer2" />
-        <div className="treeLayer treeLayer3" />
-        <div className="treeLayer treeLayer4" />
-        <div className="treeLayer treeLayer5" />
-        <div className="treeLayer treeLayer6" />
-        <div className="treeStar" />
-        <div className="treeTinsel" />
-        <div className="treeGarland">
-          <span className="treeBulb tb1" />
-          <span className="treeBulb tb2" />
-          <span className="treeBulb tb3" />
-          <span className="treeBulb tb4" />
-          <span className="treeBulb tb5" />
-          <span className="treeBulb tb6" />
-        </div>
-      </div>
+      {/* Новогодние декорации только для новогоднего режима */}
+      {gameMode === 'newyear' && (
+        <>
+          <div className="treeLeft" aria-hidden="true">
+            <div className="treeLayer treeLayer1" />
+            <div className="treeLayer treeLayer2" />
+            <div className="treeLayer treeLayer3" />
+            <div className="treeLayer treeLayer4" />
+            <div className="treeLayer treeLayer5" />
+            <div className="treeLayer treeLayer6" />
+            <div className="treeStar" />
+            <div className="treeTinsel" />
+            <div className="treeGarland">
+              <span className="treeBulb tb1" />
+              <span className="treeBulb tb2" />
+              <span className="treeBulb tb3" />
+              <span className="treeBulb tb4" />
+              <span className="treeBulb tb5" />
+              <span className="treeBulb tb6" />
+            </div>
+          </div>
+          <div className="treeRight" aria-hidden="true">
+            <div className="treeLayer treeLayer1" />
+            <div className="treeLayer treeLayer2" />
+            <div className="treeLayer treeLayer3" />
+            <div className="treeLayer treeLayer4" />
+            <div className="treeLayer treeLayer5" />
+            <div className="treeLayer treeLayer6" />
+            <div className="treeStar" />
+            <div className="treeTinsel" />
+            <div className="treeGarland">
+              <span className="treeBulb tb1" />
+              <span className="treeBulb tb2" />
+              <span className="treeBulb tb3" />
+              <span className="treeBulb tb4" />
+              <span className="treeBulb tb5" />
+              <span className="treeBulb tb6" />
+            </div>
+          </div>
+        </>
+      )}
       <div className="shell">
         <section className="panel left">
           <div className="festiveHeader">
-            <div className="garland" aria-hidden="true">
-              <span className="bulb b1" />
-              <span className="bulb b2" />
-              <span className="bulb b3" />
-              <span className="bulb b4" />
-              <span className="bulb b5" />
-              <span className="bulb b6" />
-              <span className="bulb b7" />
-            </div>
+            {gameMode === 'newyear' && (
+              <div className="garland" aria-hidden="true">
+                <span className="bulb b1" />
+                <span className="bulb b2" />
+                <span className="bulb b3" />
+                <span className="bulb b4" />
+                <span className="bulb b5" />
+                <span className="bulb b6" />
+                <span className="bulb b7" />
+              </div>
+            )}
             <div className="headerRow">
               <div>
                 <h1 className="title">Кто хочет стать миллионером</h1>
-                <p className="subtitle">Новогодний выпуск про Санкт-Петербург</p>
+                <p className="subtitle">
+                  {gameMode === 'newyear' ? 'Новогодний выпуск про Санкт-Петербург' : 'Классический выпуск'}
+                </p>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                  <button
-                    className="themeToggle"
-                    onClick={() => setMusicEnabled(!musicEnabled)}
-                    title={musicEnabled ? 'Выключить музыку' : 'Включить музыку'}
-                  >
-                    {musicEnabled ? '🔊' : '🔇'}
-                  </button>
-                  {musicEnabled && (
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.01"
-                      value={musicVolume}
-                      onChange={(e) => setMusicVolume(Number(e.target.value))}
-                      style={{ width: 80, cursor: 'pointer' }}
-                      title={`Громкость музыки: ${Math.round(musicVolume * 100)}%`}
-                    />
-                  )}
-                </div>
                 <button className="themeToggle" onClick={onBack} title="Вернуться в меню">
                   ← Меню
                 </button>
@@ -661,11 +498,16 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
             </div>
           </div>
 
-          {questions.length === 0 ? (
+          {questions.length === 0 || baseQuestions.length === 0 ? (
             <div className="finishBox">
               <div style={{ fontWeight: 700, marginBottom: 6 }}>Нет вопросов</div>
               <div className="muted">
-                Проверь файл <code>src/data/questions.json</code>.
+                Проверь файл <code>src/data/{gameMode === 'newyear' ? 'questions.json' : 'questionsRegular.json'}</code>.
+                {baseQuestions.length > 0 && baseQuestions.length < 15 && (
+                  <div style={{ marginTop: 8 }}>
+                    Доступно только {baseQuestions.length} вопросов. Нужно минимум 15.
+                  </div>
+                )}
               </div>
             </div>
           ) : gameState === 'intro' ? (
@@ -678,6 +520,26 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
                   получаешь k очков. Очки можно тратить на подсказки.
                 </div>
                 <div style={{ marginTop: 12 }}>
+                  <div style={{ fontWeight: 700, marginBottom: 6 }}>Режим игры</div>
+                  <div className="muted" style={{ marginBottom: 10 }}>
+                    Выберите режим игры перед выбором сложности.
+                  </div>
+                  <div className="lifelines" style={{ gap: 10, marginBottom: 16 }}>
+                    <button
+                      className={gameMode === 'newyear' ? 'lifelineBtn selected' : 'lifelineBtn'}
+                      onClick={() => setGameMode('newyear')}
+                      title="Новогодний режим"
+                    >
+                      🎄 Новогодний
+                    </button>
+                    <button
+                      className={gameMode === 'regular' ? 'lifelineBtn selected' : 'lifelineBtn'}
+                      onClick={() => setGameMode('regular')}
+                      title="Обычный режим"
+                    >
+                      📚 Обычный
+                    </button>
+                  </div>
                   <div style={{ fontWeight: 700, marginBottom: 6 }}>Сложность</div>
                   <div className="muted" style={{ marginBottom: 10 }}>
                     Выберите набор вопросов перед стартом.
@@ -709,7 +571,7 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
               </div>
               <div className="footerRow">
                 <span className="muted">
-                  Сложность: <b>{difficultyLabel[difficulty]}</b> · Вопросов: {total} / {questions.length}
+                  Сложность: <b>{difficultyLabel[difficulty]}</b> · Вопросов: {total}
                 </span>
                 <button className="primaryBtn" onClick={start}>
                   Начать игру
@@ -840,7 +702,9 @@ function MillionaireGame({ theme, onBack }: MillionaireGameProps) {
                   <div className="muted" style={{ marginBottom: 10 }}>
                     Попробуй еще.
                   </div>
-                  <img className="snowman" src={snowman} alt="Снеговик" />
+                  {gameMode === 'newyear' && (
+                    <img className="snowman" src={snowman} alt="Снеговик" />
+                  )}
                 </>
               )}
               <button className="primaryBtn" onClick={restart}>
