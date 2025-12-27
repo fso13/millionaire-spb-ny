@@ -6,7 +6,7 @@ import yourGameQuestionsRegularJson from './data/yourGameQuestionsRegular.json'
 import yourGameQuestionsITJson from './data/yourGameQuestionsIT.json'
 
 type QuestionState = 'hidden' | 'open' | 'answered'
-type GameState = 'selectEdition' | 'selectDifficulty' | 'playing' | 'finished'
+type GameState = 'selectEdition' | 'selectDifficulty' | 'selectThemes' | 'playing' | 'finished'
 type Edition = 'newyear' | 'regular' | 'it'
 
 type CellState = {
@@ -31,6 +31,7 @@ function YourGame() {
   const [edition, setEdition] = useState<Edition | null>(null)
   const [difficulty, setDifficulty] = useState<Difficulty>('easy')
   const [gameState, setGameState] = useState<GameState>('selectEdition')
+  const [selectedThemeIds, setSelectedThemeIds] = useState<Set<string>>(new Set())
   
   const gameData = (edition === 'newyear' 
     ? yourGameQuestionsJson 
@@ -69,43 +70,64 @@ function YourGame() {
         return
       }
       
-      // Для regular edition случайно выбираем 6 категорий из всех доступных
-      if (edition === 'regular') {
-        // Случайно перемешиваем все доступные категории и выбираем 6
-        const shuffledThemes = [...baseThemes].sort(() => Math.random() - 0.5)
-        currentThemes = shuffledThemes.slice(0, 6)
-        
-        // Сохраняем выбранные темы
-        setThemes(currentThemes)
+      // Используем выбранные темы пользователем
+      if (selectedThemeIds.size > 0) {
+        currentThemes = baseThemes.filter(theme => selectedThemeIds.has(theme.id))
+        if (currentThemes.length !== 6) {
+          console.warn('Expected 6 themes, got:', currentThemes.length)
+        }
       } else {
-        // Для других edition используем базовые темы
-        setThemes(baseThemes)
+        // Fallback: если темы не выбраны, используем первые 6
+        currentThemes = baseThemes.slice(0, 6)
       }
       
+      // Сохраняем выбранные темы
+      setThemes(currentThemes)
+      
+      // Для каждой темы выбираем по 5 вопросов (по одному на каждую стоимость: 100, 200, 300, 400, 500)
       const initialGrid = currentThemes.map((theme) => {
-        return theme.questions.map((q) => ({
-          themeId: theme.id,
-          questionId: q.id,
-          points: q.points,
-          state: 'hidden' as QuestionState,
-          isCatInBag: q.isCatInBag ?? false,
-          originalThemeId: q.originalThemeId
-        }))
+        const pointValues: (100 | 200 | 300 | 400 | 500)[] = [100, 200, 300, 400, 500]
+        const selectedQuestions: CellState[] = []
+        
+        pointValues.forEach((points) => {
+          // Находим все вопросы с данной стоимостью
+          const questionsWithPoints = theme.questions.filter(q => q.points === points)
+          
+          if (questionsWithPoints.length > 0) {
+            // Случайно выбираем один вопрос из этой группы
+            const randomQuestion = questionsWithPoints[Math.floor(Math.random() * questionsWithPoints.length)]
+            selectedQuestions.push({
+              themeId: theme.id,
+              questionId: randomQuestion.id,
+              points: randomQuestion.points,
+              state: 'hidden' as QuestionState,
+              isCatInBag: randomQuestion.isCatInBag ?? false,
+              originalThemeId: randomQuestion.originalThemeId
+            })
+          }
+        })
+        
+        return selectedQuestions
       })
 
       const newGrid = initialGrid.map((row) => {
-        return row.map((cell, colIndex) => {
+        return row.map((cell) => {
           if (Math.random() < 0.1 && !cell.isCatInBag) {
             const otherThemes = currentThemes.filter((t) => t.id !== cell.themeId)
             if (otherThemes.length > 0) {
               const randomTheme = otherThemes[Math.floor(Math.random() * otherThemes.length)]
-              const randomQuestion = randomTheme.questions[colIndex]
+              // Находим вопрос с той же стоимостью из другой темы
+              const questionsWithSamePoints = randomTheme.questions.filter(q => q.points === cell.points)
               
-              return {
-                ...cell,
-                isCatInBag: true,
-                originalThemeId: randomTheme.id,
-                questionId: randomQuestion.id
+              if (questionsWithSamePoints.length > 0) {
+                const randomQuestion = questionsWithSamePoints[Math.floor(Math.random() * questionsWithSamePoints.length)]
+                
+                return {
+                  ...cell,
+                  isCatInBag: true,
+                  originalThemeId: randomTheme.id,
+                  questionId: randomQuestion.id
+                }
               }
             }
           }
@@ -118,12 +140,12 @@ function YourGame() {
       setSelectedCell(null)
       setShowAnswer(false)
       setWrongAnswers(new Set())
-    } else if (gameState !== 'playing' && gameState !== 'selectDifficulty' && gameState !== 'selectEdition') {
+    } else if (gameState !== 'playing' && gameState !== 'selectDifficulty' && gameState !== 'selectEdition' && gameState !== 'selectThemes') {
       // Очищаем сетку только когда игра точно не активна (finished)
       setGrid([])
       setThemes(baseThemes)
     }
-  }, [difficulty, gameState, gameData, edition, baseThemes])
+  }, [difficulty, gameState, gameData, edition, baseThemes, selectedThemeIds])
 
 
   const handleCellClick = (row: number, col: number) => {
@@ -197,6 +219,7 @@ function YourGame() {
   const restartGame = () => {
     setGameState('selectEdition')
     setEdition(null)
+    setSelectedThemeIds(new Set())
     setTotalPoints(0)
     setSelectedCell(null)
     setShowAnswer(false)
@@ -218,11 +241,32 @@ function YourGame() {
       return
     }
     console.log('Starting game with', gameData[difficulty].themes.length, 'themes')
-    setGameState('playing')
+    setGameState('selectThemes')
     setTotalPoints(0)
     setSelectedCell(null)
     setShowAnswer(false)
     setWrongAnswers(new Set())
+  }
+
+  const toggleThemeSelection = (themeId: string) => {
+    setSelectedThemeIds(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(themeId)) {
+        newSet.delete(themeId)
+      } else {
+        if (newSet.size < 6) {
+          newSet.add(themeId)
+        }
+      }
+      return newSet
+    })
+  }
+
+  const confirmThemeSelection = () => {
+    if (selectedThemeIds.size !== 6) {
+      return
+    }
+    setGameState('playing')
   }
 
   // Функции обработчики событий определены выше
@@ -314,6 +358,39 @@ function YourGame() {
           </div>
           <div style={{ marginTop: 20 }}>
             <button className="primaryBtn" onClick={startGame} style={{ width: '100%' }}>
+              Продолжить
+            </button>
+          </div>
+        </div>
+      ) : gameState === 'selectThemes' ? (
+        <div className="finishBox">
+          <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 20 }}>Выберите 6 тем</div>
+          <div className="muted" style={{ marginBottom: 16 }}>
+            Выберите 6 тем для игры. Выбрано: {selectedThemeIds.size} из 6
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+            {baseThemes.map((theme) => {
+              const isSelected = selectedThemeIds.has(theme.id)
+              return (
+                <button
+                  key={theme.id}
+                  className={isSelected ? 'lifelineBtn selected' : 'lifelineBtn'}
+                  onClick={() => toggleThemeSelection(theme.id)}
+                  disabled={!isSelected && selectedThemeIds.size >= 6}
+                  style={{ padding: '12px 16px', textAlign: 'center' }}
+                >
+                  {theme.name}
+                </button>
+              )
+            })}
+          </div>
+          <div style={{ marginTop: 20 }}>
+            <button 
+              className="primaryBtn" 
+              onClick={confirmThemeSelection} 
+              style={{ width: '100%' }}
+              disabled={selectedThemeIds.size !== 6}
+            >
               Начать игру
             </button>
           </div>
